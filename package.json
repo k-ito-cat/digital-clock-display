@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://k-ito-cat.github.io/web-clock",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
