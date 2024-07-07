@@ -40,14 +40,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build
+        run: npm run deploy
+
       - name: Configure Git
         run: |
           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
-
-      - name: Build
-        run: npm run deploy
-
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
@@ -57,5 +56,7 @@ jobs:
           path: "./dist"
 
       - name: Deploy to GitHub Pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: deployment
         uses: actions/deploy-pages@v1
