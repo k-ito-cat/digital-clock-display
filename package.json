@@ -1,9 +1,9 @@
 {
-  "name": "web-clock",
+  "name": "digital-clock-display",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://k-ito-cat.github.io/web-clock",
+  "homepage": "https://k-ito-cat.github.io/digital-clock-display",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
