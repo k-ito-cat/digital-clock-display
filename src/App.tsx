@@ -1,7 +1,12 @@
+import Layout from "./layouts/Layout";
+import ClockPage from "./pages/ClockPage";
+
 function App() {
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <Layout>
+        <ClockPage />
+      </Layout>
     </>
   );
 }
