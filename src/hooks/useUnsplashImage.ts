@@ -48,7 +48,7 @@ export const useUnsplashImage = () => {
       }
     };
     firstFetch();
-  }, []);
+  }, [photo, cookies.initial_load_completed, setCookie]);
 
   /**
    * 1秒ごとにフェッチ直後の時刻+インターバル時間と現在時刻を比較し、
