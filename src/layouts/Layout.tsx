@@ -7,9 +7,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="w-full h-[100vh] flex items-center justify-center">
-      <div>
-        <main>{children}</main>
-      </div>
+      {children}
     </div>
   );
 };
