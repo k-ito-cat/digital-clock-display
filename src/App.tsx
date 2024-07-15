@@ -3,11 +3,9 @@ import ClockPage from "./pages/ClockPage";
 
 function App() {
   return (
-    <>
-      <Layout>
-        <ClockPage />
-      </Layout>
-    </>
+    <Layout>
+      <ClockPage />
+    </Layout>
   );
 }
 
