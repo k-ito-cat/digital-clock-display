@@ -5,7 +5,10 @@ import SettingDrawer from "~/components/SettingDrawer";
 const ClockPage = () => {
   return (
     <ClockBgImage>
-      <div className="absolute bottom-2 right-0 hover:opacity-50 transition duration-300">
+      <div
+        id="setting-button"
+        className="absolute bottom-2 right-0 hover:scale-150 hover:opacity-50 transition duration-300"
+      >
         <SettingDrawer />
       </div>
       <ClockView />

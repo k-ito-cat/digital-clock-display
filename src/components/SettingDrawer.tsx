@@ -5,17 +5,19 @@ import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { Radio } from "@mui/icons-material";
 
 export default function SwipeableTemporaryDrawer() {
   const [state, setState] = React.useState(false);
 
   const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean = true) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event &&
         event.type === "keydown" &&
@@ -25,6 +27,13 @@ export default function SwipeableTemporaryDrawer() {
         return;
       }
       setState(open);
+
+      const settingButton = document.getElementById("setting-button");
+      const classes = ["rotate-45", "scale-150"];
+      if (settingButton)
+        classes.forEach((className) => {
+          settingButton.classList.toggle(className);
+        });
     };
 
   const list = () => (
@@ -35,12 +44,26 @@ export default function SwipeableTemporaryDrawer() {
     >
       <List>
         <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <InboxIcon />
-            </ListItemIcon>
-            <ListItemText />
-          </ListItemButton>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="female"
+              name="radio-buttons-group"
+            >
+              <FormControlLabel
+                value="female"
+                control={<Radio />}
+                label="Female"
+              />
+              <FormControlLabel value="male" control={<Radio />} label="Male" />
+              <FormControlLabel
+                value="other"
+                control={<Radio />}
+                label="Other"
+              />
+            </RadioGroup>
+          </FormControl>
         </ListItem>
       </List>
       <Divider />
@@ -48,20 +71,18 @@ export default function SwipeableTemporaryDrawer() {
   );
 
   return (
-    <div>
-      <React.Fragment>
-        <Button onClick={toggleDrawer(true)}>
-          <BrightnessHighIcon sx={{ color: "white" }} />
-        </Button>
-        <SwipeableDrawer
-          anchor={"left"}
-          open={state}
-          onClose={toggleDrawer(false)}
-          onOpen={toggleDrawer(true)}
-        >
-          {list()}
-        </SwipeableDrawer>
-      </React.Fragment>
-    </div>
+    <>
+      <Button onClick={toggleDrawer()}>
+        <BrightnessHighIcon sx={{ color: "white" }} />
+      </Button>
+      <SwipeableDrawer
+        anchor={"left"}
+        open={state}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer()}
+      >
+        {list()}
+      </SwipeableDrawer>
+    </>
   );
 }
