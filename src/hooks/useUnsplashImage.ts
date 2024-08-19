@@ -12,7 +12,7 @@ import {
 
 export const useUnsplashImage = () => {
   const [photo, setPhoto] = useState<string | null>(null);
-  const [cookies, setCookie] = useCookies([COOKIE_KEY]);
+  const [cookies, setCookie, removeCookie] = useCookies([COOKIE_KEY]);
 
   /**
    * フェッチ直後の時刻と画像URLをローカルストレージに保存
@@ -31,8 +31,8 @@ export const useUnsplashImage = () => {
       if (!cookies.initial_load_completed) {
         // 永続的なcookieを付与
         setCookie(COOKIE_KEY, true, { path: "/" });
-
         // サイトを始めて訪れたときのみフェッチを行う
+        // TODO: URL形式の型定義をする
         const initialFetchResponse: string = await getUnsplashRandomImageUrl();
 
         setFetchData(initialFetchResponse);
@@ -43,6 +43,7 @@ export const useUnsplashImage = () => {
         if (imageUrl) {
           setPhoto(imageUrl);
         } else {
+          removeCookie(COOKIE_KEY);
           localStorage.setItem(STORAGE_KEY_IMAGE_CACHE, photo || "");
         }
       }
@@ -58,7 +59,8 @@ export const useUnsplashImage = () => {
     const fetchTimestamp = localStorage.getItem(STORAGE_KEY_FETCH_TIMESTAMP);
 
     if (!fetchTimestamp) return;
-
+    // TODO: FETCH_INTERVALを可変に switchとか？
+    // インターフェースはラジオボタンで選択できるようにする
     const refetchAt = Number(fetchTimestamp) + FETCH_INTERVAL;
     if (Date.now() >= refetchAt) {
       // 前回のフェッチの時間+インターバルの時間を現在時刻が超えた場合、再フェッチを行う
