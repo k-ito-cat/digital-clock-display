@@ -18,7 +18,7 @@ export const ClockBgImage: React.FC<WrapperProps> = ({ children }) => {
   return (
     <div
       className={
-        "w-full h-[100vh] flex items-center justify-center bg-cover bg-center"
+        "flex h-[100vh] w-full items-center justify-center bg-cover bg-center"
       }
       style={{ backgroundImage: `url(${photo})` }}
     >
