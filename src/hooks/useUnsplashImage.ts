@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getUnsplashRandomImageUrl } from "~/api/getUnsplashRandomImageUrl";
-import { FETCH_INTERVAL } from "~/constants/intervalTime";
 import {
-  COOKIE_KEY,
+  COOKIE_KEY_INITIAL_LOAD_COMPLETED,
   STORAGE_KEY_FETCH_TIMESTAMP,
   STORAGE_KEY_IMAGE_CACHE,
 } from "~/constants/keyName";
 
 // TODO: 機能として、セッションかcookieかは選びたい（タブを新しく開いたときどうするかとかで）
 
-export const useUnsplashImage = () => {
+/**
+ * @param intervalTime - 画像取得APIの再フェッチのインターバル時間
+ * @returns photo
+ */
+export const useUnsplashImage = (intervalTime: number) => {
   const [photo, setPhoto] = useState<string | null>(null);
-  const [cookies, setCookie] = useCookies([COOKIE_KEY]);
+  const [cookies, setCookie, removeCookie] = useCookies([
+    COOKIE_KEY_INITIAL_LOAD_COMPLETED,
+  ]);
 
   /**
    * フェッチ直後の時刻と画像URLをローカルストレージに保存
@@ -24,17 +29,15 @@ export const useUnsplashImage = () => {
   };
 
   useEffect(() => {
-    // NOTE: 初回フェッチ後にリロードすることによる再フェッチの防止として、
-    // 初回フェッチ後に永続的なcookieを付与し、cookieが存在する場合は再フェッチを行わず、ローカルストレージに保存された画像を読み取る
-
     const firstFetch = async () => {
       if (!cookies.initial_load_completed) {
         // 永続的なcookieを付与
-        setCookie(COOKIE_KEY, true, { path: "/" });
-
+        setCookie(COOKIE_KEY_INITIAL_LOAD_COMPLETED, true, { path: "/" });
         // サイトを始めて訪れたときのみフェッチを行う
+        // TODO: URL形式の型定義をする
         const initialFetchResponse: string = await getUnsplashRandomImageUrl();
 
+        if (!initialFetchResponse) return;
         setFetchData(initialFetchResponse);
         setPhoto(initialFetchResponse);
       } else {
@@ -43,12 +46,13 @@ export const useUnsplashImage = () => {
         if (imageUrl) {
           setPhoto(imageUrl);
         } else {
+          removeCookie(COOKIE_KEY_INITIAL_LOAD_COMPLETED);
           localStorage.setItem(STORAGE_KEY_IMAGE_CACHE, photo || "");
         }
       }
     };
     firstFetch();
-  }, [photo, cookies.initial_load_completed, setCookie]);
+  }, []);
 
   /**
    * 1秒ごとにフェッチ直後の時刻+インターバル時間と現在時刻を比較し、
@@ -59,7 +63,8 @@ export const useUnsplashImage = () => {
 
     if (!fetchTimestamp) return;
 
-    const refetchAt = Number(fetchTimestamp) + FETCH_INTERVAL;
+    const refetchAt = Number(fetchTimestamp) + intervalTime;
+
     if (Date.now() >= refetchAt) {
       // 前回のフェッチの時間+インターバルの時間を現在時刻が超えた場合、再フェッチを行う
       const updateImageUrl: string = await getUnsplashRandomImageUrl();

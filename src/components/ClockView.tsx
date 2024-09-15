@@ -1,4 +1,3 @@
-// import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCurrentTime } from "../hooks/useCurrentTime";
 
 export const ClockView = () => {
