@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -r https://$GITHUB_TOKEN@github.com/k-ito-cat/digital-clock-display.git"
+    "deploy": "gh-pages -d dist -t true"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
