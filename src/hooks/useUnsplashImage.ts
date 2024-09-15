@@ -52,7 +52,8 @@ export const useUnsplashImage = (intervalTime: number) => {
       }
     };
     firstFetch();
-  }, [cookies.initial_load_completed, photo, removeCookie, setCookie]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo]);
 
   /**
    * 1秒ごとにフェッチ直後の時刻+インターバル時間と現在時刻を比較し、
