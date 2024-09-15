@@ -16,10 +16,10 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     useEffect(() => {
       setPhoto(photoUrl);
 
-      const setting = false; // これは設定値のモック
+      const setting = true; // これは設定値のモック
       // TODO: 設定値を取得して動的にすること（有効/無効, インターバル秒数）
       autoHideCursor(setting, 3);
-    }, [photoUrl]);
+    }, [autoHideCursor, photoUrl]);
 
     return (
       <div
