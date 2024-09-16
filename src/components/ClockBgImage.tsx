@@ -23,7 +23,7 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
       <div
         id="clock-bg-image"
         className={
-          "flex h-[100vh] w-full items-center justify-center bg-cover bg-center"
+          "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
         }
         style={{ backgroundImage: `url(${photoUrl})` }}
       >
