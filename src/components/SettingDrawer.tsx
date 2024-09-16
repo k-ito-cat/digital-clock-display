@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import Button from "@mui/material/Button";
@@ -10,19 +10,47 @@ import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import NativeSelect from "@mui/material/NativeSelect";
+import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
 import {
   STORAGE_KEY_FETCH_TIMESTAMP,
   STORAGE_KEY_INTERVAL_TIME,
 } from "~/constants/keyName";
+import Typography from "@mui/material/Typography";
+import { DEFAULT_FETCH_INTERVAL } from "~/constants/intervalTime";
 
 interface SettingDrawerProps {
   intervalTime: number;
   setIntervalTime: (interval: number) => void;
+  limit: { requestLimit: number; requestRemaining: number };
 }
 
 export const SettingDrawer = memo(
-  ({ intervalTime, setIntervalTime }: SettingDrawerProps) => {
-    const [state, setState] = useState<boolean>(false);
+  ({ intervalTime, setIntervalTime, limit }: SettingDrawerProps) => {
+    const [drawerState, setDrawerState] = useState<boolean>(false);
+    const [nextFetchTime, setNextFetchTime] = useState<string | null>(null);
+
+    const formattedDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+
+      // フォーマット
+      return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    useEffect(() => {
+      const nextFetchTime =
+        Number(localStorage.getItem(STORAGE_KEY_FETCH_TIMESTAMP)) +
+        intervalTime;
+
+      console.log(limit);
+
+      setNextFetchTime(formattedDate(new Date(nextFetchTime)));
+    }, [intervalTime, limit]);
 
     const toggleDrawer =
       (open: boolean = true) =>
@@ -35,7 +63,7 @@ export const SettingDrawer = memo(
         ) {
           return;
         }
-        setState(open);
+        setDrawerState(open);
 
         const settingButton = document.getElementById("setting-button");
         const classes = ["rotate-45", "scale-150"];
@@ -71,7 +99,7 @@ export const SettingDrawer = memo(
                 背景画像が切り替わる間隔
               </InputLabel>
               <NativeSelect
-                defaultValue={intervalTime || 30 * 60 * 1000}
+                defaultValue={intervalTime || DEFAULT_FETCH_INTERVAL}
                 inputProps={{
                   name: "interval time",
                   id: "uncontrolled-native",
@@ -83,6 +111,57 @@ export const SettingDrawer = memo(
                 <option value={60 * 60 * 1000}>1時間</option>
               </NativeSelect>
             </FormControl>
+          </ListItem>
+          <ListItem
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <Typography
+              variant="overline"
+              gutterBottom
+              sx={{ display: "block" }}
+            >
+              次の画像切り替わり時間
+            </Typography>
+            <p>{nextFetchTime}</p>
+          </ListItem>
+          <ListItem
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <Typography
+              variant="overline"
+              gutterBottom
+              sx={{ display: "block" }}
+            >
+              リクエスト上限回数
+            </Typography>
+            <Stack direction="row" spacing={1}>
+              {limit.requestLimit > 25 && (
+                <Chip
+                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  color="success"
+                />
+              )}
+              {limit.requestLimit <= 25 && (
+                <Chip
+                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  color="warning"
+                />
+              )}
+              {limit.requestLimit <= 0 && (
+                <Chip
+                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  color="error"
+                />
+              )}
+            </Stack>
           </ListItem>
         </List>
         <Divider />
@@ -96,7 +175,7 @@ export const SettingDrawer = memo(
         </Button>
         <SwipeableDrawer
           anchor={"left"}
-          open={state}
+          open={drawerState}
           onClose={toggleDrawer(false)}
           onOpen={toggleDrawer()}
         >

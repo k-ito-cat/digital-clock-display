@@ -5,10 +5,11 @@ import { useCursor } from "~/hooks/useCursor";
 interface WrapperProps {
   children: ReactNode;
   intervalTime: number;
+  setLimit: (limit: { requestLimit: number; requestRemaining: number }) => void;
 }
 export const ClockBgImage: React.FC<WrapperProps> = memo(
-  ({ children, intervalTime }) => {
-    const { photoUrl } = useUnsplashImage(intervalTime);
+  ({ children, intervalTime, setLimit }) => {
+    const { photoUrl } = useUnsplashImage({ intervalTime, setLimit });
 
     const { autoHideCursor } = useCursor();
 
