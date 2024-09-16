@@ -24,6 +24,9 @@ jobs:
           node-version: 18
           cache: "npm"
 
+      - name: Set environment variables
+        run: echo "VITE_ACCESS_KEY=${{ secrets.VITE_ACCESS_KEY }}" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: npm install
 
