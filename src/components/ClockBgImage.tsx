@@ -1,4 +1,4 @@
-import React, { memo, ReactNode, useEffect, useState } from "react";
+import React, { memo, ReactNode, useEffect } from "react";
 import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
 
@@ -8,14 +8,11 @@ interface WrapperProps {
 }
 export const ClockBgImage: React.FC<WrapperProps> = memo(
   ({ children, intervalTime }) => {
-    const photoUrl = useUnsplashImage(intervalTime);
-    const [photo, setPhoto] = useState<string | null>(null);
+    const { photoUrl } = useUnsplashImage(intervalTime);
 
     const { autoHideCursor } = useCursor();
 
     useEffect(() => {
-      setPhoto(photoUrl);
-
       const setting = true; // これは設定値のモック
       // TODO: 設定値を取得して動的にすること（有効/無効, インターバル秒数）
       autoHideCursor(setting, 3);
@@ -27,7 +24,7 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
         className={
           "flex h-[100vh] w-full items-center justify-center bg-cover bg-center"
         }
-        style={{ backgroundImage: `url(${photo})` }}
+        style={{ backgroundImage: `url(${photoUrl})` }}
       >
         {children}
       </div>
