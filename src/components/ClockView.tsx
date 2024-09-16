@@ -4,8 +4,8 @@ export const ClockView = () => {
   const currentTime = useCurrentTime();
 
   return (
-    <div className="w-[400px] border-[10px] border-white px-4 py-2">
-      <p className="text-center text-[64px] tracking-[.1em] text-white">
+    <div className="mx-8 w-[280px] border-white px-4 py-2 sm:w-[380px] md:w-[400px]">
+      <p className="text-center text-[32px] tracking-[.1em] text-white sm:text-[48px] md:text-[64px]">
         {currentTime}
       </p>
     </div>
