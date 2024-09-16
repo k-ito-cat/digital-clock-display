@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useCookies } from "react-cookie";
 import { getUnsplashRandomImageUrl } from "~/api/getUnsplashRandomImageUrl";
 import {
   COOKIE_KEY_INITIAL_LOAD_COMPLETED,
@@ -7,17 +6,12 @@ import {
   STORAGE_KEY_IMAGE_CACHE,
 } from "~/constants/keyName";
 
-// TODO: 機能として、セッションかcookieかは選びたい（タブを新しく開いたときどうするかとかで）
-
 /**
  * @param intervalTime - 画像取得APIの再フェッチのインターバル時間
  * @returns photo
  */
 export const useUnsplashImage = (intervalTime: number) => {
   const [photo, setPhoto] = useState<string | null>(null);
-  const [cookies, setCookie, removeCookie] = useCookies([
-    COOKIE_KEY_INITIAL_LOAD_COMPLETED,
-  ]);
 
   /**
    * フェッチ直後の時刻と画像URLをローカルストレージに保存
@@ -30,9 +24,9 @@ export const useUnsplashImage = (intervalTime: number) => {
 
   useEffect(() => {
     const firstFetch = async () => {
-      if (!cookies.initial_load_completed) {
-        // 永続的なcookieを付与
-        setCookie(COOKIE_KEY_INITIAL_LOAD_COMPLETED, true, { path: "/" });
+      const session = sessionStorage.getItem(COOKIE_KEY_INITIAL_LOAD_COMPLETED);
+      if (!session) {
+        sessionStorage.setItem(COOKIE_KEY_INITIAL_LOAD_COMPLETED, "true");
         // サイトを始めて訪れたときのみフェッチを行う
         // TODO: URL形式の型定義をする
         const initialFetchResponse: string = await getUnsplashRandomImageUrl();
@@ -46,7 +40,7 @@ export const useUnsplashImage = (intervalTime: number) => {
         if (imageUrl) {
           setPhoto(imageUrl);
         } else {
-          removeCookie(COOKIE_KEY_INITIAL_LOAD_COMPLETED);
+          sessionStorage.removeItem(COOKIE_KEY_INITIAL_LOAD_COMPLETED);
           localStorage.setItem(STORAGE_KEY_IMAGE_CACHE, photo || "");
         }
       }
