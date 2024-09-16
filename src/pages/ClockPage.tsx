@@ -18,8 +18,8 @@ const ClockPage = () => {
     localStorage.getItem(STORAGE_KEY_REQUEST_LIMIT) || "",
   );
   const [limit, setLimit] = useState<Limit>({
-    requestLimit: limitInfo.limit || 50,
-    requestRemaining: limitInfo.remaining || 0,
+    requestLimit: Number(limitInfo.limit) || 50,
+    requestRemaining: Number(limitInfo.remaining) || 0,
   });
 
   const memoizedSetIntervalTime = (interval: number) =>

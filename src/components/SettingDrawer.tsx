@@ -109,6 +109,9 @@ export const SettingDrawer = memo(
                 <option value={15 * 60 * 1000}>15分</option>
                 <option value={30 * 60 * 1000}>30分</option>
                 <option value={60 * 60 * 1000}>1時間</option>
+                <option value={6 * 60 * 60 * 1000}>6時間</option>
+                <option value={12 * 60 * 60 * 1000}>12時間</option>
+                <option value={24 * 60 * 60 * 1000}>1日</option>
               </NativeSelect>
             </FormControl>
           </ListItem>
@@ -140,27 +143,25 @@ export const SettingDrawer = memo(
               gutterBottom
               sx={{ display: "block" }}
             >
-              リクエスト上限回数
+              １時間あたりのリクエスト上限回数
             </Typography>
             <Stack direction="row" spacing={1}>
-              {limit.requestLimit > 25 && (
+              {limit.requestRemaining > 25 ? (
                 <Chip
-                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  label={limit.requestRemaining + " / " + limit.requestLimit}
                   color="success"
                 />
-              )}
-              {limit.requestLimit <= 25 && (
+              ) : limit.requestRemaining <= 25 ? (
                 <Chip
-                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  label={limit.requestRemaining + " / " + limit.requestLimit}
                   color="warning"
                 />
-              )}
-              {limit.requestLimit <= 0 && (
+              ) : limit.requestRemaining <= 0 ? (
                 <Chip
-                  label={limit.requestLimit + " / " + limit.requestRemaining}
+                  label={limit.requestRemaining + " / " + limit.requestLimit}
                   color="error"
                 />
-              )}
+              ) : null}
             </Stack>
           </ListItem>
         </List>
