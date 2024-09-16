@@ -14,12 +14,13 @@ const ClockPage = () => {
   const [intervalTime, setIntervalTime] = useState<number>(
     Number(localStorage.getItem("intervalTime")) || DEFAULT_FETCH_INTERVAL,
   );
-  const limitInfo = JSON.parse(
-    localStorage.getItem(STORAGE_KEY_REQUEST_LIMIT) || "",
-  );
+  const storageLimit = localStorage.getItem(STORAGE_KEY_REQUEST_LIMIT);
+
   const [limit, setLimit] = useState<Limit>({
-    requestLimit: Number(limitInfo.limit) || 50,
-    requestRemaining: Number(limitInfo.remaining) || 0,
+    requestLimit: storageLimit ? Number(JSON.parse(storageLimit).limit) : 50,
+    requestRemaining: storageLimit
+      ? Number(JSON.parse(storageLimit).remaining)
+      : 0,
   });
 
   const memoizedSetIntervalTime = (interval: number) =>

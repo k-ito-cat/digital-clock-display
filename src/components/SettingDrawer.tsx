@@ -47,8 +47,6 @@ export const SettingDrawer = memo(
         Number(localStorage.getItem(STORAGE_KEY_FETCH_TIMESTAMP)) +
         intervalTime;
 
-      console.log(limit);
-
       setNextFetchTime(formattedDate(new Date(nextFetchTime)));
     }, [intervalTime, limit]);
 
