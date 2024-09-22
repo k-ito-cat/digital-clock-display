@@ -18,6 +18,7 @@ import {
 } from "~/constants/keyName";
 import Typography from "@mui/material/Typography";
 import { DEFAULT_FETCH_INTERVAL } from "~/constants/intervalTime";
+import { formattedDate } from "~/utils/dateFormat";
 
 interface SettingDrawerProps {
   intervalTime: number;
@@ -49,6 +50,16 @@ export const SettingDrawer = memo(
 
       setNextFetchTime(formattedDate(new Date(nextFetchTime)));
     }, [intervalTime, limit]);
+
+    const addSettingIconAnimation = () => {
+      const settingButton = document.getElementById("setting-button");
+      const classes = ["rotate-45", "scale-150"];
+      if (settingButton) {
+        classes.forEach((className) => {
+          settingButton.classList.toggle(className);
+        });
+      }
+    };
 
     const toggleDrawer =
       (open: boolean = true) =>
