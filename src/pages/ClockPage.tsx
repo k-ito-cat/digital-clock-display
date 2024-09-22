@@ -28,16 +28,11 @@ const ClockPage = () => {
 
   return (
     <ClockBgImage setLimit={setLimit} intervalTime={intervalTime}>
-      <div
-        id="setting-button"
-        className="absolute bottom-2 right-0 transition duration-300 hover:scale-150 hover:opacity-50"
-      >
-        <SettingDrawer
-          limit={limit}
-          intervalTime={intervalTime}
-          setIntervalTime={memoizedSetIntervalTime}
-        />
-      </div>
+      <SettingDrawer
+        limit={limit}
+        intervalTime={intervalTime}
+        setIntervalTime={memoizedSetIntervalTime}
+      />
       <ClockView />
     </ClockBgImage>
   );

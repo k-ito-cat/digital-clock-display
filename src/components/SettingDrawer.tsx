@@ -169,7 +169,22 @@ export const SettingDrawer = memo(
 
     return (
       <>
-        <Button onClick={toggleDrawer()}>
+        <Button
+          id="setting-button"
+          onClick={toggleDrawer()}
+          sx={{
+            minWidth: "0",
+            padding: 0,
+            position: "absolute",
+            bottom: "24px",
+            right: "24px",
+            transition: "0.3s",
+            ":hover": {
+              transform: "scale(1.5)",
+              opacity: 0.5,
+            },
+          }}
+        >
           <BrightnessHighIcon sx={{ color: "white" }} />
         </Button>
         <SwipeableDrawer
