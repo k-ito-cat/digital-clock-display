@@ -20,7 +20,6 @@ import {
 import { formattedDate } from "~/utils/dateFormat";
 import { useSettingHandler } from "~/hooks/useSettingHandler";
 import { getNextFetchTime } from "~/utils/nextFetchTime";
-import { AddToHomeScreenButton } from "./AddToHomeScreenButton";
 
 // TODO: type model
 interface SettingDrawerProps {
@@ -134,9 +133,6 @@ export const SettingDrawer = memo(({ limit }: SettingDrawerProps) => {
               />
             ) : null}
           </Stack>
-        </ListItem>
-        <ListItem>
-          <AddToHomeScreenButton />
         </ListItem>
       </List>
       <Divider />
