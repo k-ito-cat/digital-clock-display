@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUnsplashRandomImageUrl } from "~/api/getUnsplashRandomImageUrl";
+import { useSettingHandler } from "~/hooks/useSettingHandler";
 import {
   COOKIE_KEY_INITIAL_LOAD_COMPLETED,
   STORAGE_KEY_FETCH_TIMESTAMP,
@@ -8,7 +9,6 @@ import {
 } from "~/constants/keyName";
 
 interface Props {
-  intervalTime: number;
   setLimit: (limit: { requestLimit: number; requestRemaining: number }) => void;
 }
 
@@ -16,8 +16,10 @@ interface Props {
  * @param intervalTime - 画像取得APIの再フェッチのインターバル時間
  * @returns photo
  */
-export const useUnsplashImage = ({ intervalTime, setLimit }: Props) => {
+export const useUnsplashImage = ({ setLimit }: Props) => {
   const [photo, setPhoto] = useState<string | null>(null);
+
+  const { intervalTime } = useSettingHandler();
 
   const saveImageUrl = async () => {
     const data = await getUnsplashRandomImageUrl();
@@ -71,7 +73,8 @@ export const useUnsplashImage = ({ intervalTime, setLimit }: Props) => {
 
       if (!fetchTimestamp) return;
 
-      const refetchAt = Number(fetchTimestamp) + intervalTime;
+      // TODO: util
+      const refetchAt = Number(fetchTimestamp) + intervalTime.state;
 
       if (Date.now() >= refetchAt) {
         // 前回のフェッチの時間 + インターバルの時間を現在時刻が超えた場合、再フェッチを行う
@@ -84,7 +87,7 @@ export const useUnsplashImage = ({ intervalTime, setLimit }: Props) => {
     };
     const intervalId = setTimeout(checkAndRefetch, 1000);
     return () => clearTimeout(intervalId);
-  }, [photo, intervalTime]);
+  }, [photo, intervalTime.state]);
 
   return { photoUrl: photo };
 };

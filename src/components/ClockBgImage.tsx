@@ -2,14 +2,14 @@ import React, { memo, ReactNode, useEffect } from "react";
 import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
 
+// TODO: type model
 interface WrapperProps {
   children: ReactNode;
-  intervalTime: number;
   setLimit: (limit: { requestLimit: number; requestRemaining: number }) => void;
 }
 export const ClockBgImage: React.FC<WrapperProps> = memo(
-  ({ children, intervalTime, setLimit }) => {
-    const { photoUrl } = useUnsplashImage({ intervalTime, setLimit });
+  ({ children, setLimit }) => {
+    const { photoUrl } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
 
