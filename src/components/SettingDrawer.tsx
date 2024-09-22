@@ -13,7 +13,10 @@ import NativeSelect from "@mui/material/NativeSelect";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
-import { DEFAULT_FETCH_INTERVAL } from "~/constants/intervalTime";
+import {
+  DEFAULT_FETCH_INTERVAL,
+  INTERVAL_TIME,
+} from "~/constants/intervalTime";
 import { formattedDate } from "~/utils/dateFormat";
 import { useSettingHandler } from "~/hooks/useSettingHandler";
 import { getNextFetchTime } from "~/utils/nextFetchTime";
@@ -70,7 +73,7 @@ export const SettingDrawer = memo(({ limit }: SettingDrawerProps) => {
         <ListItem>
           <FormControl fullWidth>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              背景画像が切り替わる間隔
+              別の背景画像へ切り替わるまでの間隔
             </InputLabel>
             <NativeSelect
               defaultValue={intervalTime.state || DEFAULT_FETCH_INTERVAL}
@@ -80,13 +83,13 @@ export const SettingDrawer = memo(({ limit }: SettingDrawerProps) => {
               }}
               onChange={intervalTime.handler}
             >
-              {/* TODO: 配列オブジェクト readonly - constantsに入れるべき？ */}
-              <option value={15 * 60 * 1000}>15分</option>
-              <option value={30 * 60 * 1000}>30分</option>
-              <option value={60 * 60 * 1000}>1時間</option>
-              <option value={6 * 60 * 60 * 1000}>6時間</option>
-              <option value={12 * 60 * 60 * 1000}>12時間</option>
-              <option value={24 * 60 * 60 * 1000}>1日</option>
+              {INTERVAL_TIME.map((time) => {
+                return (
+                  <option key={time.value} value={time.value}>
+                    {time.label}
+                  </option>
+                );
+              })}
             </NativeSelect>
           </FormControl>
         </ListItem>
@@ -98,7 +101,7 @@ export const SettingDrawer = memo(({ limit }: SettingDrawerProps) => {
           }}
         >
           <Typography variant="overline" gutterBottom sx={{ display: "block" }}>
-            次の画像切り替わり時間
+            別の画像へ切り替わる時間
           </Typography>
           <p>{nextFetchTime}</p>
         </ListItem>
