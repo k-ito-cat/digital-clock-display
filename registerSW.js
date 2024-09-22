@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/digital-clock-display/sw.js', { scope: '/digital-clock-display/' })})}
