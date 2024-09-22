@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { UPDATE_INTERVAL } from "~/constants/intervalTime";
+import { TIMER_UPDATE_INTERVAL } from "~/constants/intervalTime";
 
 export const useCurrentTime = () => {
   const [clock, setClock] = useState<string>("00:00:00");
 
+  // TODO: util
   const getClock = () => {
     const current = new Date();
     let hours: number | string = current.getHours();
@@ -20,7 +21,7 @@ export const useCurrentTime = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setClock(getClock());
-    }, UPDATE_INTERVAL);
+    }, TIMER_UPDATE_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, []);

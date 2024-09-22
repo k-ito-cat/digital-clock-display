@@ -1,2 +1,2 @@
-export const UPDATE_INTERVAL = 1000;
+export const TIMER_UPDATE_INTERVAL = 1000;
 export const DEFAULT_FETCH_INTERVAL = 60 * 60 * 1000;
