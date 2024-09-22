@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { getUnsplashRandomImageUrl } from "~/api/getUnsplashRandomImageUrl";
 import { useSettingHandler } from "~/hooks/useSettingHandler";
+import { getNextFetchTime } from "~/utils/nextFetchTime";
 import {
   COOKIE_KEY_INITIAL_LOAD_COMPLETED,
   STORAGE_KEY_FETCH_TIMESTAMP,
   STORAGE_KEY_IMAGE_CACHE,
   STORAGE_KEY_REQUEST_LIMIT,
 } from "~/constants/keyName";
+import { TIMER_UPDATE_INTERVAL } from "~/constants/intervalTime";
 
 interface Props {
   setLimit: (limit: { requestLimit: number; requestRemaining: number }) => void;
@@ -73,19 +75,18 @@ export const useUnsplashImage = ({ setLimit }: Props) => {
 
       if (!fetchTimestamp) return;
 
-      // TODO: util
-      const refetchAt = Number(fetchTimestamp) + intervalTime.state;
+      const nextFetchTime = getNextFetchTime(intervalTime.state);
 
-      if (Date.now() >= refetchAt) {
+      if (Date.now() >= nextFetchTime) {
         // 前回のフェッチの時間 + インターバルの時間を現在時刻が超えた場合、再フェッチを行う
         saveImageUrl();
       } else {
         // 次のフェッチまでの時間を計算し、次のタイムアウトを設定
-        const timeout = refetchAt - Date.now();
+        const timeout = nextFetchTime - Date.now();
         setTimeout(checkAndRefetch, timeout);
       }
     };
-    const intervalId = setTimeout(checkAndRefetch, 1000);
+    const intervalId = setTimeout(checkAndRefetch, TIMER_UPDATE_INTERVAL);
     return () => clearTimeout(intervalId);
   }, [photo, intervalTime.state]);
 

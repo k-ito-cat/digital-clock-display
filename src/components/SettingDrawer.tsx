@@ -13,10 +13,10 @@ import NativeSelect from "@mui/material/NativeSelect";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
-import { STORAGE_KEY_FETCH_TIMESTAMP } from "~/constants/keyName";
 import { DEFAULT_FETCH_INTERVAL } from "~/constants/intervalTime";
 import { formattedDate } from "~/utils/dateFormat";
 import { useSettingHandler } from "~/hooks/useSettingHandler";
+import { getNextFetchTime } from "~/utils/nextFetchTime";
 
 // TODO: type model
 interface SettingDrawerProps {
@@ -30,10 +30,7 @@ export const SettingDrawer = memo(({ limit }: SettingDrawerProps) => {
   const { intervalTime } = useSettingHandler();
 
   useEffect(() => {
-    // TODO: 次のフェッチ時間取得util作成 getItemは固定。引数はintervalTime
-    const nextFetchTime =
-      Number(localStorage.getItem(STORAGE_KEY_FETCH_TIMESTAMP)) +
-      intervalTime.state;
+    const nextFetchTime = getNextFetchTime(intervalTime.state);
 
     setNextFetchTime(formattedDate(new Date(nextFetchTime)));
   }, [intervalTime.state, limit]);
