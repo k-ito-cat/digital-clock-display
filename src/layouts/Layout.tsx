@@ -1,16 +1,12 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-  }, []);
-
   return (
-    <div className="w-full h-[100vh] flex items-center justify-center">
+    <div className="flex h-[100dvh] w-full items-center justify-center">
       {children}
     </div>
   );
