@@ -8,7 +8,6 @@ interface BeforeInstallPromptEvent extends Event {
 export const AddToHomeScreenButton = () => {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -16,8 +15,6 @@ export const AddToHomeScreenButton = () => {
 
       promptEvent.preventDefault();
       setDeferredPrompt(promptEvent);
-
-      setIsVisible(true);
     };
 
     // beforeinstallprompt イベントは、ブラウザがPWAをホーム画面に追加できると判断したときに発火
@@ -44,14 +41,9 @@ export const AddToHomeScreenButton = () => {
         }
         // プロンプトの状態をリセット
         setDeferredPrompt(null);
-        setIsVisible(false);
       });
     }
   };
 
-  return (
-    isVisible && (
-      <button onClick={handleAddToHomeScreen}>ホーム画面に追加</button>
-    )
-  );
+  return <button onClick={handleAddToHomeScreen}>ホーム画面に追加</button>;
 };
