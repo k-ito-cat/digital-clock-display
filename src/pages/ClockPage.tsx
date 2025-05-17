@@ -24,6 +24,13 @@ const ClockPage = () => {
       <SettingDrawer limit={limit} />
       <ClockView />
       <FullScreen />
+      {/* MEMO: ファビコンで使用しているアイコン icon8のクレジット */}
+      <p className="md:text-base absolute bottom-2 left-4 text-xs text-white opacity-50">
+        favicon by:&nbsp;
+        <a href="https://icons8.com" target="_blank" rel="noreferrer">
+          Icons8
+        </a>
+      </p>
     </ClockBgImage>
   );
 };
