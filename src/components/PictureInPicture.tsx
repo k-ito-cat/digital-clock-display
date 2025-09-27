@@ -16,31 +16,43 @@ export const PictureInPicture = () => {
   const { remainingSeconds, currentSet, totalSets, mode } = usePomodoroContext();
 
   useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 640;
-    canvas.height = 360;
-    canvasRef.current = canvas;
+    // iOS Chrome では captureStream / PiP 非対応のため安全にスキップ
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 360;
+      canvasRef.current = canvas;
 
-    const video = document.createElement('video');
-    video.muted = true;
-    video.playsInline = true;
-    videoRef.current = video;
+      const video = document.createElement('video');
+      video.muted = true;
+      video.playsInline = true;
+      videoRef.current = video;
 
-    const stream = canvas.captureStream(30);
-    video.srcObject = stream;
-    video.play().catch(() => {});
+      const hasCaptureStream = typeof (canvas as any).captureStream === 'function';
+      if (!hasCaptureStream) {
+        return;
+      }
 
-    const onEnter = () => setIsInPip(true);
-    const onLeave = () => setIsInPip(false);
-    video.addEventListener('enterpictureinpicture', onEnter);
-    video.addEventListener('leavepictureinpicture', onLeave);
+      const stream = (canvas as any).captureStream(30);
+      video.srcObject = stream;
+      video.play().catch(() => {});
 
-    return () => {
-      video.removeEventListener('enterpictureinpicture', onEnter);
-      video.removeEventListener('leavepictureinpicture', onLeave);
-      const tracks = stream.getTracks();
-      tracks.forEach((t) => t.stop());
-    };
+      const onEnter = () => setIsInPip(true);
+      const onLeave = () => setIsInPip(false);
+      video.addEventListener('enterpictureinpicture', onEnter);
+      video.addEventListener('leavepictureinpicture', onLeave);
+
+      return () => {
+        video.removeEventListener('enterpictureinpicture', onEnter);
+        video.removeEventListener('leavepictureinpicture', onLeave);
+        if (stream) {
+          const tracks = stream.getTracks?.();
+          tracks?.forEach((t: MediaStreamTrack) => t.stop());
+        }
+      };
+    } catch (_) {
+      // 未対応環境でのエラー抑止
+    }
   }, []);
 
   // 描画
@@ -121,7 +133,7 @@ export const PictureInPicture = () => {
 
   const togglePip = async () => {
     try {
-      if ('pictureInPictureElement' in document && document.pictureInPictureElement) {
+      if ('pictureInPictureElement' in document && (document as any).pictureInPictureElement) {
         await (document as any).exitPictureInPicture();
         return;
       }
@@ -129,20 +141,22 @@ export const PictureInPicture = () => {
       const video = videoRef.current;
       if (!video) return;
 
-      if ('requestPictureInPicture' in HTMLVideoElement.prototype) {
+      const canRequest = 'requestPictureInPicture' in HTMLVideoElement.prototype;
+      if (canRequest) {
         await (video as any).requestPictureInPicture();
         return;
       }
 
-      // Fallback をここで追加する場合は Document PiP などを検討
+      // 未対応環境（iOS Chrome 等）は何もしない
       alert('お使いのブラウザはPicture-in-Pictureに対応していない可能性があります。');
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
     }
   };
 
-  return (
+  const isPipSupported = typeof HTMLVideoElement !== 'undefined' && 'requestPictureInPicture' in HTMLVideoElement.prototype;
+
+  return isPipSupported ? (
     <div className="absolute bottom-24 right-6">
       {isInPip ? (
         <PictureInPictureAltOutlinedIcon className="cursor-pointer text-white" onClick={togglePip} />
@@ -150,7 +164,7 @@ export const PictureInPicture = () => {
         <PictureInPictureAltIcon className="cursor-pointer text-white" onClick={togglePip} />
       )}
     </div>
-  );
+  ) : null;
 };
 
 

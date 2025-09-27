@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ClockBgImage } from '~/components/ClockBgImage';
 import { ClockView } from '~/components/ClockView';
 import { FullScreen } from '~/components/FullScreen';
@@ -24,9 +24,19 @@ const ClockPage = () => {
     requestRemaining: storageLimit ? Number(JSON.parse(storageLimit).remaining) : 0,
   });
 
-  Notification.requestPermission().then((result) => {
-    console.log(result);
-  });
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && typeof Notification.requestPermission === 'function') {
+        Notification.requestPermission().then((result) => {
+          console.log(result);
+        }).catch(() => {
+          // noop
+        });
+      }
+    } catch (_) {
+      // iOS Chrome など未対応環境での ReferenceError 防止
+    }
+  }, []);
 
 
   const [tab, setTab] = useState<'top' | 'pomodoro'>('top');
