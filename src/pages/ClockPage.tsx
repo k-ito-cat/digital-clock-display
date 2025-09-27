@@ -18,6 +18,8 @@ interface Limit {
   requestRemaining: number;
 }
 
+const tabOrder: Array<'clock' | 'pomodoro' | 'timer'> = ['clock', 'pomodoro', 'timer'];
+
 const ClockPage = () => {
   const storageLimit = localStorage.getItem(STORAGE_KEY_REQUEST_LIMIT);
 
@@ -41,40 +43,56 @@ const ClockPage = () => {
   }, []);
 
 
-  const [tab, setTab] = useState<'top' | 'pomodoro' | 'timer'>('top');
+  const [tab, setTab] = useState<'clock' | 'pomodoro' | 'timer'>('clock');
 
   return (
     <ClockBgImage setLimit={setLimit}>
       <PomodoroProvider>
-        <ViewProvider value={{ view: tab }}>
-          <TopTabs value={tab} onChange={setTab} />
-          {tab === 'top' ? <ClockView /> : tab === 'pomodoro' ? <PomodoroTimer /> : <CircularTimer />}
-          <div className="auto-hide-ui absolute bottom-6 right-6 flex items-center gap-3">
-            <PictureInPicture />
-            <FullScreen />
-            <SettingDrawer
-              limit={limit}
-              renderTrigger={({ open, id }) => (
-                <button
-                  id={id}
-                  type="button"
-                  onClick={open}
-                  aria-label="設定"
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50"
+          <ViewProvider value={{ view: tab }}>
+            <TopTabs value={tab} onChange={setTab} />
+            <div className="relative flex w-full justify-center">
+              <div className="relative w-full overflow-hidden">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${tabOrder.indexOf(tab) * 100}%)` }}
                 >
-                  <BrightnessHighIcon fontSize="small" />
-                </button>
-              )}
-            />
-          </div>
-          {/* MEMO: ファビコンで使用しているアイコン icon8のクレジット */}
-          <p className="md:text-base absolute bottom-2 left-4 text-xs text-white opacity-50">
-            favicon by:&nbsp;
-            <a href="https://icons8.com" target="_blank" rel="noreferrer">
-              Icons8
-            </a>
-          </p>
-        </ViewProvider>
+                  <div className="w-full grid place-items-center shrink-0 px-4">
+                    <ClockView />
+                  </div>
+                  <div className="w-full grid place-items-center shrink-0 px-4">
+                    <PomodoroTimer />
+                  </div>
+                  <div className="w-full grid place-items-center shrink-0 px-4">
+                    <CircularTimer />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="auto-hide-ui absolute bottom-6 right-6 flex items-center gap-3">
+              <PictureInPicture />
+              <FullScreen />
+              <SettingDrawer
+                limit={limit}
+                renderTrigger={({ open, id }) => (
+                  <button
+                    id={id}
+                    type="button"
+                    onClick={open}
+                    aria-label="設定"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50"
+                  >
+                    <BrightnessHighIcon fontSize="small" />
+                  </button>
+                )}
+              />
+            </div>
+            <p className="auto-hide-ui absolute bottom-2 left-4 text-xs text-white opacity-50 md:text-base">
+              favicon by:&nbsp;
+              <a href="https://icons8.com" target="_blank" rel="noreferrer">
+                Icons8
+              </a>
+            </p>
+          </ViewProvider>
       </PomodoroProvider>
     </ClockBgImage>
   );

@@ -34,7 +34,7 @@ export const PomodoroList = () => {
     const now = mode === 'longBreak' ? '長休憩' : '休憩';
     const next = currentSet >= totalSets ? '完了' : formatSetLabel(currentSet + 1);
     return [prev, now, next];
-  }, [currentSet, totalSets, mode]);
+  }, [currentSet, totalSets, mode, isIdleWaiting]);
 
   const [animKey, setAnimKey] = useState(0);
   useEffect(() => {

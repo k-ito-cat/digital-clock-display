@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getUnsplashRandomImageUrl } from "~/api/getUnsplashRandomImageUrl";
 import { useSettingHandler } from "~/hooks/useSettingHandler";
 import { getNextFetchTime } from "~/utils/nextFetchTime";
@@ -27,26 +27,29 @@ export const useUnsplashImage = ({ setLimit }: Props) => {
 
   const { intervalTime } = useSettingHandler();
 
-  const saveImageUrl = async (targetQuery: string = query) => {
-    const data = await getUnsplashRandomImageUrl({ query: targetQuery.trim() || undefined });
-    if (!data) return;
+  const saveImageUrl = useCallback(
+    async (targetQuery: string = query) => {
+      const data = await getUnsplashRandomImageUrl({ query: targetQuery.trim() || undefined });
+      if (!data) return;
 
-    localStorage.setItem(STORAGE_KEY_IMAGE_CACHE, data.url);
-    localStorage.setItem(STORAGE_KEY_FETCH_TIMESTAMP, String(Date.now()));
-    localStorage.setItem(
-      STORAGE_KEY_REQUEST_LIMIT,
-      JSON.stringify({
-        limit: data.requestLimit,
-        remaining: data.requestRemaining,
-      }),
-    );
-    setLimit({
-      requestLimit: data.requestLimit,
-      requestRemaining: data.requestRemaining,
-    });
-    setPhoto(data.url);
-    setIsCustom(false);
-  };
+      localStorage.setItem(STORAGE_KEY_IMAGE_CACHE, data.url);
+      localStorage.setItem(STORAGE_KEY_FETCH_TIMESTAMP, String(Date.now()));
+      localStorage.setItem(
+        STORAGE_KEY_REQUEST_LIMIT,
+        JSON.stringify({
+          limit: data.requestLimit,
+          remaining: data.requestRemaining,
+        }),
+      );
+      setLimit({
+        requestLimit: data.requestLimit,
+        requestRemaining: data.requestRemaining,
+      });
+      setPhoto(data.url);
+      setIsCustom(false);
+    },
+    [query, setLimit],
+  );
 
   useEffect(() => {
     const firstFetch = async () => {
@@ -74,7 +77,7 @@ export const useUnsplashImage = ({ setLimit }: Props) => {
       }
     };
     firstFetch();
-  }, [photo, query]);
+  }, [photo, query, saveImageUrl]);
 
   /**
    * 1秒ごとにフェッチ直後の時刻+インターバル時間と現在時刻を比較し、
@@ -98,7 +101,7 @@ export const useUnsplashImage = ({ setLimit }: Props) => {
     };
     const intervalId = setTimeout(checkAndRefetch, TIMER_UPDATE_INTERVAL);
     return () => clearTimeout(intervalId);
-  }, [photo, intervalTime.state, isCustom, query]);
+  }, [photo, intervalTime.state, isCustom, query, saveImageUrl]);
 
   const setCustomBackground = (dataUrl: string) => {
     localStorage.setItem(STORAGE_KEY_CUSTOM_BACKGROUND, dataUrl);

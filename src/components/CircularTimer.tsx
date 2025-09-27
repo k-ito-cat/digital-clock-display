@@ -1,57 +1,40 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { TimerControlBar, TimerActionConfig, TimerSelectConfig } from './TimerControlBar';
 import { TIMER_TEXT } from '~/constants/labels';
+import { useTimerContext } from '~/context/TimerContext';
+import { useClockSettings } from '~/context/ClockSettingsContext';
+import { formatTimer } from '~/utils/timerFormat';
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 const MAX_TOTAL = 23 * 3600 + 59 * 60 + 59;
 
-const formatHMS = (s: number) => {
-  const h = Math.floor(s / 3600).toString().padStart(2, '0');
-  const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-  const sec = Math.floor(s % 60).toString().padStart(2, '0');
-  return h === '00' ? `${m}:${sec}` : `${h}:${m}:${sec}`;
-};
-
 export const CircularTimer = () => {
-  const DEFAULT_SECONDS = 25 * 60;
-  const [total, setTotal] = useState<number>(DEFAULT_SECONDS);
-  const [remaining, setRemaining] = useState<number>(DEFAULT_SECONDS);
-  const [running, setRunning] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+  const {
+    totalSeconds,
+    remainingSeconds,
+    running,
+    setTotalSeconds,
+    setRemainingSeconds,
+    reset,
+    setRunning,
+  } = useTimerContext();
+  const { showTimerControls } = useClockSettings();
 
-  useEffect(() => {
-    if (!running) return;
-    intervalRef.current = window.setInterval(() => {
-      setRemaining((prev) => Math.max(prev - 1, 0));
-    }, 1000);
-    return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    };
-  }, [running]);
-
-  useEffect(() => {
-    if (remaining === 0 && running) setRunning(false);
-  }, [remaining, running]);
-
-  const progress = useMemo(() => (total ? 1 - remaining / total : 0), [total, remaining]);
+  const progress = useMemo(
+    () => (totalSeconds ? 1 - remainingSeconds / totalSeconds : 0),
+    [totalSeconds, remainingSeconds],
+  );
   const percent = Math.round(clamp(progress, 0, 1) * 100);
 
   const timeParts = useMemo(() => {
-    const hours = Math.floor(total / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    const seconds = total % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
     return { hours, minutes, seconds };
-  }, [total]);
-
-  useEffect(() => {
-    if (!running) {
-      setRemaining(total);
-    }
-  }, [total, running]);
+  }, [totalSeconds]);
 
   const selectConfigs: TimerSelectConfig[] = [
     {
@@ -61,8 +44,8 @@ export const CircularTimer = () => {
       onChange: (value) => {
         const hours = clamp(Number(value || 0), 0, 23);
         const newTotal = Math.min(MAX_TOTAL, hours * 3600 + timeParts.minutes * 60 + timeParts.seconds);
-        setTotal(newTotal);
-        setRemaining(newTotal);
+        setTotalSeconds(newTotal);
+        setRemainingSeconds(newTotal);
       },
       options: Array.from({ length: 24 }, (_, i) => ({ value: i, label: i })),
     },
@@ -73,8 +56,8 @@ export const CircularTimer = () => {
       onChange: (value) => {
         const mins = clamp(Number(value || 0), 0, 59);
         const newTotal = Math.min(MAX_TOTAL, timeParts.hours * 3600 + mins * 60 + timeParts.seconds);
-        setTotal(newTotal);
-        setRemaining(newTotal);
+        setTotalSeconds(newTotal);
+        setRemainingSeconds(newTotal);
       },
       options: Array.from({ length: 60 }, (_, i) => ({ value: i, label: i })),
     },
@@ -99,8 +82,8 @@ export const CircularTimer = () => {
 
         hours = clamp(hours, 0, 23);
         const newTotal = Math.min(MAX_TOTAL, hours * 3600 + mins * 60 + secs);
-        setTotal(newTotal);
-        setRemaining(newTotal);
+        setTotalSeconds(newTotal);
+        setRemainingSeconds(newTotal);
       },
       options: Array.from({ length: 61 }, (_, i) => ({ value: i, label: i })),
     },
@@ -111,15 +94,17 @@ export const CircularTimer = () => {
       id: 'toggle',
       icon: running ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />,
       ariaLabel: running ? TIMER_TEXT.pause : TIMER_TEXT.start,
-      onClick: () => setRunning((v) => !v),
+      onClick: () => {
+        setRunning(!running);
+      },
     },
     {
       id: 'reset',
       icon: <RestartAltIcon fontSize="small" />,
       ariaLabel: TIMER_TEXT.reset,
       onClick: () => {
+        reset();
         setRunning(false);
-        setRemaining(total);
       },
     },
   ];
@@ -137,15 +122,17 @@ export const CircularTimer = () => {
           <div className="absolute inset-[14px] sm:inset-[18px] rounded-full bg-white/70 shadow-md" />
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span className="select-none text-[48px] font-semibold tracking-[.1em] text-gray-700 sm:text-[64px]">
-              {formatHMS(remaining)}
+              {formatTimer(remainingSeconds)}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 flex justify-center">
-        <TimerControlBar selects={selectConfigs} actions={actionConfigs} />
-      </div>
+      {showTimerControls && (
+        <div className="mt-4 flex justify-center">
+          <TimerControlBar selects={selectConfigs} actions={actionConfigs} />
+        </div>
+      )}
     </div>
   );
 };

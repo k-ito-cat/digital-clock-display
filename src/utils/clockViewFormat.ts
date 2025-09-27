@@ -2,16 +2,16 @@
  * 現在時刻をHH:MM:SS形式でフォーマットする
  * @returns {string} - HH:MM:SS形式でフォーマットされた時刻を返す
  */
-export const clockViewFormat = () => {
-  const current = new Date();
-  let hours: number | string = current.getHours();
-  let minutes: number | string = current.getMinutes();
-  let seconds: number | string = current.getSeconds();
+export const formatTimeByPattern = (date: Date, pattern: "HH:mm:ss" | "HH:mm") => {
+  const pad = (num: number) => num.toString().padStart(2, "0");
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
 
-  // 1桁の場合、0埋めする
-  hours = Number(hours) < 10 ? `0${hours}` : hours;
-  minutes = Number(minutes) < 10 ? `0${minutes}` : minutes;
-  seconds = Number(seconds) < 10 ? `0${seconds}` : seconds;
-
+  if (pattern === "HH:mm") {
+    return `${hours}:${minutes}`;
+  }
   return `${hours}:${minutes}:${seconds}`;
 };
+
+export const clockViewFormat = () => formatTimeByPattern(new Date(), "HH:mm:ss");

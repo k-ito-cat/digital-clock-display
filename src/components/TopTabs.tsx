@@ -5,13 +5,13 @@ import React from 'react';
 import '~/styles/autoHide.css';
 
 type TopTabsProps = {
-  value: 'top' | 'pomodoro' | 'timer';
-  onChange: (value: 'top' | 'pomodoro' | 'timer') => void;
+  value: 'clock' | 'pomodoro' | 'timer';
+  onChange: (value: 'clock' | 'pomodoro' | 'timer') => void;
 };
 
 export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
   const handleChange = (_e: React.SyntheticEvent, newValue: string) => {
-    onChange(newValue as 'top' | 'pomodoro' | 'timer');
+    onChange(newValue as 'clock' | 'pomodoro' | 'timer');
   };
 
   return (
@@ -44,15 +44,15 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
       >
         <Tab
           disableRipple
-          value="top"
-          label="TOP"
+          value="clock"
+          label="時計"
           sx={{
             minHeight: 0,
             minWidth: 0,
             padding: { xs: '6px 12px', sm: '8px 16px' },
             color: '#374151',
             textTransform: 'none',
-            fontWeight: value === 'top' ? 700 : 500,
+            fontWeight: value === 'clock' ? 700 : 500,
             borderRadius: 9999,
             transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
             '&:hover': {

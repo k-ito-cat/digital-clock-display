@@ -13,6 +13,8 @@ import NativeSelect from "@mui/material/NativeSelect";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import {
   DEFAULT_FETCH_INTERVAL,
   INTERVAL_TIME,
@@ -23,7 +25,8 @@ import { getNextFetchTime } from "~/utils/nextFetchTime";
 import PhotoIcon from "@mui/icons-material/Photo";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useUnsplashImageContext } from "~/context/UnsplashImageContext";
-import { useClockSettings } from "~/hooks/useClockSettings";
+import { useClockSettings } from "~/context/ClockSettingsContext";
+import type { TimeFormat } from "~/hooks/useCurrentTime";
 
 // TODO: type model
 interface SettingDrawerProps {
@@ -50,6 +53,11 @@ const CURSOR_SECONDS_OPTIONS = [
   { label: "120秒", value: 120 },
 ];
 
+const TIME_FORMAT_OPTIONS = [
+  { label: "HH:mm:ss", value: "HH:mm:ss" },
+  { label: "HH:mm", value: "HH:mm" },
+];
+
 const TRIGGER_ID = "setting-button";
 
 export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps) => {
@@ -63,7 +71,18 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     changeQuery,
     query,
   } = useUnsplashImageContext();
-  const { cursorHideSeconds, setCursorHideSeconds } = useClockSettings();
+  const {
+    cursorHideSeconds,
+    setCursorHideSeconds,
+    showDate,
+    setShowDate,
+    timeFormat,
+    setTimeFormat,
+    showPomodoroControls,
+    setShowPomodoroControls,
+    showTimerControls,
+    setShowTimerControls,
+  } = useClockSettings();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -222,6 +241,64 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               ))}
             </NativeSelect>
           </FormControl>
+        </ListItem>
+        <ListItem>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showDate}
+                onChange={(event) => setShowDate(event.target.checked)}
+                color="primary"
+              />
+            }
+            label="日付を表示"
+          />
+        </ListItem>
+        <ListItem>
+          <FormControl fullWidth>
+            <InputLabel variant="standard" htmlFor="time-format-select">
+              時刻フォーマット
+            </InputLabel>
+            <NativeSelect
+              value={timeFormat}
+              onChange={(event) => setTimeFormat(event.target.value as TimeFormat)}
+              inputProps={{
+                name: "time format",
+                id: "time-format-select",
+              }}
+            >
+              {TIME_FORMAT_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormControl>
+        </ListItem>
+        <Divider sx={{ my: 1 }} />
+        <ListItem>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showPomodoroControls}
+                onChange={(event) => setShowPomodoroControls(event.target.checked)}
+                color="primary"
+              />
+            }
+            label="ポモドーロのコントロールを表示"
+          />
+        </ListItem>
+        <ListItem>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showTimerControls}
+                onChange={(event) => setShowTimerControls(event.target.checked)}
+                color="primary"
+              />
+            }
+            label="タイマーのコントロールを表示"
+          />
         </ListItem>
         <ListItem
           sx={{

@@ -2,7 +2,7 @@ import React, { memo, ReactNode, useEffect } from "react";
 import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
 import { UnsplashImageProvider } from "~/context/UnsplashImageContext";
-import { useClockSettings } from "~/hooks/useClockSettings";
+import { useClockSettings } from "~/context/ClockSettingsContext";
 
 // TODO: type model
 interface WrapperProps {
@@ -14,12 +14,11 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     const { photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
-    const { cursorHideSeconds, cursorHideEnabled } = useClockSettings();
+    const { cursorHideSeconds } = useClockSettings();
 
     useEffect(() => {
-      if (!cursorHideEnabled) return;
-      autoHideCursor(cursorHideEnabled, cursorHideSeconds);
-    }, [autoHideCursor, cursorHideEnabled, cursorHideSeconds, photoUrl]);
+      autoHideCursor(true, cursorHideSeconds);
+    }, [autoHideCursor, cursorHideSeconds, photoUrl]);
 
     return (
       <UnsplashImageProvider value={{ photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query }}>

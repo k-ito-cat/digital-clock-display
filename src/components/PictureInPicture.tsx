@@ -1,24 +1,33 @@
 import PictureInPictureAltIcon from '@mui/icons-material/PictureInPictureAlt';
 import PictureInPictureAltOutlinedIcon from '@mui/icons-material/PictureInPictureAltOutlined';
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useClockSettings } from '~/context/ClockSettingsContext';
 import { useCurrentTime } from '~/hooks/useCurrentTime';
 import { useUnsplashImageContext } from '~/context/UnsplashImageContext';
 import { useViewContext } from '~/context/ViewContext';
 import { usePomodoroContext } from '~/context/PomodoroContext';
+import { useTimerContext } from '~/context/TimerContext';
+import { formatTimer } from '~/utils/timerFormat';
 
 type PictureInPictureProps = {
   className?: string;
 };
 
 export const PictureInPicture = ({ className }: PictureInPictureProps) => {
-  const timeText = useCurrentTime();
+  const { timeFormat } = useClockSettings();
+  const { timeText } = useCurrentTime(timeFormat);
   const [isInPip, setIsInPip] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { photoUrl } = useUnsplashImageContext();
   const { view } = useViewContext();
   const { remainingSeconds, currentSet, totalSets, mode } = usePomodoroContext();
+  const {
+    totalSeconds: timerTotalSeconds,
+    remainingSeconds: timerRemainingSeconds,
+    running: timerRunning,
+  } = useTimerContext();
 
   useEffect(() => {
     // iOS Chrome では captureStream / PiP 非対応のため安全にスキップ
@@ -33,14 +42,14 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       video.playsInline = true;
       videoRef.current = video;
 
-      const hasCaptureStream = typeof (canvas as any).captureStream === 'function';
+      const hasCaptureStream = typeof canvas.captureStream === 'function';
       if (!hasCaptureStream) {
         return;
       }
 
-      const stream = (canvas as any).captureStream(30);
+      const stream = canvas.captureStream(30);
       video.srcObject = stream;
-      video.play().catch(() => {});
+      void video.play();
 
       const onEnter = () => setIsInPip(true);
       const onLeave = () => setIsInPip(false);
@@ -50,15 +59,56 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       return () => {
         video.removeEventListener('enterpictureinpicture', onEnter);
         video.removeEventListener('leavepictureinpicture', onLeave);
-        if (stream) {
-          const tracks = stream.getTracks?.();
-          tracks?.forEach((t: MediaStreamTrack) => t.stop());
-        }
+        stream.getTracks().forEach((track) => track.stop());
       };
     } catch (_) {
       // 未対応環境でのエラー抑止
     }
   }, []);
+
+  const drawCenterText = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      width: number,
+      height: number,
+    ) => {
+      const base = Math.min(width, height);
+      const big = `${Math.floor(base * 0.28)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
+      const small = `${Math.floor(base * 0.08)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#FFFFFF';
+
+      if (view === 'pomodoro') {
+        const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+        const s = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
+        const timer = `${m}:${s}`;
+
+        ctx.font = big;
+        ctx.fillText(timer, width / 2, height / 2);
+
+        ctx.font = small;
+        const modeLabel = mode === 'work' ? '作業' : mode === 'shortBreak' ? '小休憩' : mode === 'longBreak' ? '長休憩' : '準備中';
+        ctx.fillText(`セット ${currentSet}/${totalSets} ・ ${modeLabel}`, width / 2, height / 2 + base * 0.22);
+      } else if (view === 'timer') {
+        ctx.font = big;
+        ctx.fillText(formatTimer(timerRemainingSeconds), width / 2, height / 2);
+
+        ctx.font = small;
+        const suffix = timerRunning ? '進行中' : '停止中';
+        ctx.fillText(`設定 ${formatTimer(timerTotalSeconds)} ・ ${suffix}`, width / 2, height / 2 + base * 0.22);
+      } else {
+        ctx.font = big;
+        ctx.fillText(timeText, width / 2, height / 2);
+      }
+
+      ctx.shadowBlur = 0;
+    },
+    [view, remainingSeconds, mode, currentSet, totalSets, timerRemainingSeconds, timerRunning, timerTotalSeconds, timeText],
+  );
 
   // 描画
   useEffect(() => {
@@ -100,46 +150,12 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       drawCenterText(ctx, canvas.width, canvas.height);
     }
-  }, [timeText, photoUrl, view, remainingSeconds, currentSet, totalSets, mode]);
-
-  const drawCenterText = (
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-  ) => {
-    const base = Math.min(width, height);
-    const big = `${Math.floor(base * 0.28)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
-    const small = `${Math.floor(base * 0.08)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
-
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = 8;
-    ctx.fillStyle = '#FFFFFF';
-
-    if (view === 'pomodoro') {
-      const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
-      const s = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
-      const timer = `${m}:${s}`;
-
-      ctx.font = big;
-      ctx.fillText(timer, width / 2, height / 2);
-
-      ctx.font = small;
-      const modeLabel = mode === 'work' ? '作業' : mode === 'shortBreak' ? '小休憩' : mode === 'longBreak' ? '長休憩' : '待機';
-      ctx.fillText(`セット ${currentSet}/${totalSets} ・ ${modeLabel}`, width / 2, height / 2 + base * 0.22);
-    } else {
-      ctx.font = big;
-      ctx.fillText(timeText, width / 2, height / 2);
-    }
-
-    ctx.shadowBlur = 0;
-  };
+  }, [timeText, photoUrl, view, remainingSeconds, currentSet, totalSets, mode, timerRemainingSeconds, timerRunning, timerTotalSeconds, drawCenterText]);
 
   const togglePip = async () => {
     try {
-      if ('pictureInPictureElement' in document && (document as any).pictureInPictureElement) {
-        await (document as any).exitPictureInPicture();
+      if ('pictureInPictureElement' in document && document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
         return;
       }
 
@@ -148,7 +164,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
 
       const canRequest = 'requestPictureInPicture' in HTMLVideoElement.prototype;
       if (canRequest) {
-        await (video as any).requestPictureInPicture();
+        await video.requestPictureInPicture();
         return;
       }
 

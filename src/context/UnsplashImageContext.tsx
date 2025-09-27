@@ -24,6 +24,7 @@ export const UnsplashImageProvider = ({ value, children }: { value: UnsplashImag
   return <UnsplashImageContext.Provider value={value}>{children}</UnsplashImageContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUnsplashImageContext = () => useContext(UnsplashImageContext);
 
 

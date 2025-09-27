@@ -6,6 +6,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { TimerControlBar, TimerSelectConfig, TimerActionConfig } from './TimerControlBar';
 import { PomodoroList } from './PomodoroList';
 import { POMODORO_TEXT } from '~/constants/labels';
+import { useClockSettings } from '~/context/ClockSettingsContext';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -14,7 +15,21 @@ const formatTime = (seconds: number) => {
 };
 
 export const PomodoroTimer = () => {
-  const { remainingSeconds, running, toggle, reset, setTotalSets, currentSet, totalSets, mode, workSeconds, breakSeconds, setWorkSeconds, setBreakSeconds } = usePomodoroContext();
+  const {
+    remainingSeconds,
+    running,
+    toggle,
+    reset,
+    setTotalSets,
+    currentSet,
+    totalSets,
+    mode,
+    workSeconds,
+    breakSeconds,
+    setWorkSeconds,
+    setBreakSeconds,
+  } = usePomodoroContext();
+  const { showPomodoroControls } = useClockSettings();
 
   const label = useMemo(() => {
     if (mode === 'idle') return POMODORO_TEXT.start;
@@ -80,9 +95,11 @@ export const PomodoroTimer = () => {
       <p className="text-center text-[64px] tracking-[.1em] text-white">
         {formatTime(remainingSeconds)}
       </p>
-      <div className="mt-6 flex justify-center">
-        <TimerControlBar selects={selects} actions={actions} />
-      </div>
+      {showPomodoroControls && (
+        <div className="mt-6 flex justify-center">
+          <TimerControlBar selects={selects} actions={actions} />
+        </div>
+      )}
       <PomodoroList />
     </div>
   );

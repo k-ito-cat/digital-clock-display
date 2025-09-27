@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useContext, useMemo, useRef, useState, useEffect } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
+
 
 type PomodoroMode = 'work' | 'shortBreak' | 'longBreak' | 'idle';
 
@@ -45,13 +46,13 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
   const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_WORK);
   const timerRef = useRef<number | null>(null);
 
-  const startWork = () => {
+  const startWork = useCallback(() => {
     setMode('work');
     setRemainingSeconds(workSeconds);
     setRunning(true);
-  };
+  }, [workSeconds]);
 
-  const nextPhase = () => {
+  const nextPhase = useCallback(() => {
     if (mode === 'work') {
       const isLastSet = currentSet >= totalSets;
       if (isLastSet) {
@@ -69,7 +70,7 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
       setRemainingSeconds(workSeconds);
       setRunning(true);
     }
-  };
+  }, [mode, currentSet, totalSets, breakSeconds, workSeconds]);
 
   useEffect(() => {
     if (!running) return;
@@ -87,9 +88,9 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
       setRunning(false);
       nextPhase();
     }
-  }, [remainingSeconds, running]);
+  }, [remainingSeconds, running, nextPhase]);
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     // 初回はwork開始
     if (mode === 'idle') {
       setCurrentSet((prev) => (prev === 0 ? 1 : prev));
@@ -97,14 +98,14 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setRunning((v) => !v);
-  };
+  }, [mode, startWork]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setRunning(false);
     setMode('idle');
     setCurrentSet(0);
     setRemainingSeconds(workSeconds);
-  };
+  }, [workSeconds]);
 
   useEffect(() => {
     if (!running && mode === 'idle') {
@@ -127,12 +128,13 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
       toggle,
       reset,
     }),
-    [remainingSeconds, running, currentSet, totalSets, mode, workSeconds, breakSeconds],
+    [remainingSeconds, running, currentSet, totalSets, mode, workSeconds, breakSeconds, toggle, reset],
   );
 
   return <PomodoroContext.Provider value={value}>{children}</PomodoroContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePomodoroContext = () => useContext(PomodoroContext);
 
 
