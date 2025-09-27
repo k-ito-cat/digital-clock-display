@@ -110,7 +110,7 @@ export const CircularTimer = () => {
   ];
 
   return (
-    <div className="mx-4 w-full max-w-[420px] select-none px-4 py-2 sm:mx-8">
+    <div className="surface-secondary mx-4 w-full max-w-[420px] select-none rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8">
       <div className="mb-6 flex justify-center">
         <div className="relative h-[220px] w-[220px] sm:h-[360px] sm:w-[360px]">
           <div
@@ -119,11 +119,10 @@ export const CircularTimer = () => {
               background: `conic-gradient(rgba(255, 255, 255, 0.95) 0% ${percent}%, rgba(255,255,255,0.25) ${percent}% 100%)`,
             }}
           />
-          <div className="absolute inset-[8px] sm:inset-[22px] rounded-full bg-white/70 shadow-md" />
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="select-none text-[48px] font-semibold tracking-[.1em] text-gray-700 sm:text-[64px]">
+          <div className="surface-contrast absolute inset-[8px] sm:inset-[22px] rounded-full shadow">
+            <div className="flex h-full w-full items-center justify-center rounded-full text-center text-[36px] font-semibold text-force-light sm:text-[52px]">
               {formatTimer(remainingSeconds)}
-            </span>
+            </div>
           </div>
         </div>
       </div>

@@ -7,3 +7,105 @@
     overflow: hidden;
   }
 }
+
+.theme-dark {
+  color: #f9fafb;
+  --theme-primary: rgba(17, 24, 39, 0.72);
+  --theme-secondary: rgba(255, 255, 255, 0.16);
+  --theme-contrast: rgba(255, 255, 255, 0.94);
+  --theme-muted: rgba(255, 255, 255, 0.7);
+  --theme-input-bg: rgba(255, 255, 255, 0.96);
+  --theme-input-text: #111827;
+  --theme-button-bg: rgba(0, 0, 0, 0.3);
+  --theme-button-hover: rgba(0, 0, 0, 0.5);
+  --theme-divider: rgba(255, 255, 255, 0.32);
+}
+
+.theme-light {
+  color: #111827;
+  --theme-primary: rgba(255, 255, 255, 0.95);
+  --theme-secondary: rgba(17, 24, 39, 0.08);
+  --theme-contrast: rgba(17, 24, 39, 0.85);
+  --theme-muted: rgba(17, 24, 39, 0.6);
+  --theme-input-bg: rgba(17, 24, 39, 0.85);
+  --theme-input-text: #cccccc;
+  --theme-button-bg: rgba(17, 24, 39, 0.12);
+  --theme-button-hover: rgba(17, 24, 39, 0.18);
+  --theme-divider: rgba(17, 24, 39, 0.2);
+}
+
+.surface-primary {
+  background-color: var(--theme-primary);
+  backdrop-filter: blur(18px);
+}
+
+.surface-secondary {
+  background-color: var(--theme-secondary);
+  backdrop-filter: blur(12px);
+}
+
+.surface-contrast {
+  background-color: var(--theme-contrast);
+  color: var(--theme-input-text);
+}
+
+.text-theme-primary {
+  color: inherit;
+}
+
+.text-theme-muted {
+  color: var(--theme-muted);
+}
+
+.theme-dark .surface-secondary,
+.theme-dark .surface-contrast,
+.theme-dark .surface-primary {
+  color: var(--theme-input-text);
+}
+
+.theme-dark .pomodoro-chip,
+.theme-dark .timer-ring-text,
+.theme-dark .text-force-light {
+  color: var(--theme-input-text);
+}
+
+.theme-dark .select-force-dark {
+  color: #111827;
+}
+
+.input-surface {
+  background-color: var(--theme-input-bg);
+  color: var(--theme-input-text);
+  transition: box-shadow 0.2s ease;
+}
+
+.input-surface:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-divider);
+}
+
+.btn-theme {
+  background-color: var(--theme-button-bg);
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.btn-theme:hover {
+  background-color: var(--theme-button-hover);
+}
+
+.border-theme {
+  border-color: var(--theme-divider);
+}
+
+.btn-theme svg {
+  color: inherit;
+}
+
+.text-theme-primary {
+  color: inherit;
+}
+
+.text-theme-muted {
+  color: var(--theme-muted);
+}

@@ -5,11 +5,14 @@ import {
   STORAGE_KEY_CLOCK_TIME_FORMAT,
   STORAGE_KEY_POMODORO_CONTROLS,
   STORAGE_KEY_TIMER_CONTROLS,
+  STORAGE_KEY_THEME_MODE,
 } from '~/constants/keyName';
 import { TimeFormat } from '~/hooks/useCurrentTime';
 
 const DEFAULT_CURSOR_HIDE_SECONDS = 3;
 const DEFAULT_TIME_FORMAT: TimeFormat = 'HH:mm:ss';
+export type ThemeMode = 'dark' | 'light';
+const DEFAULT_THEME_MODE: ThemeMode = 'dark';
 
 type ClockSettingsContextType = {
   cursorHideSeconds: number;
@@ -22,6 +25,8 @@ type ClockSettingsContextType = {
   setShowPomodoroControls: (next: boolean) => void;
   showTimerControls: boolean;
   setShowTimerControls: (next: boolean) => void;
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
 };
 
 const ClockSettingsContext = createContext<ClockSettingsContextType | undefined>(undefined);
@@ -44,6 +49,11 @@ const readTimeFormat = () => {
   return stored ?? DEFAULT_TIME_FORMAT;
 };
 
+const readThemeMode = () => {
+  const stored = localStorage.getItem(STORAGE_KEY_THEME_MODE) as ThemeMode | null;
+  return stored ?? DEFAULT_THEME_MODE;
+};
+
 export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [cursorHideSeconds, setCursorHideSecondsState] = useState<number>(() =>
     readNumber(STORAGE_KEY_CURSOR_HIDE_SECONDS, DEFAULT_CURSOR_HIDE_SECONDS),
@@ -56,6 +66,7 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
   const [showTimerControls, setShowTimerControlsState] = useState<boolean>(() =>
     readBoolean(STORAGE_KEY_TIMER_CONTROLS, true),
   );
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readThemeMode());
 
   useEffect(() => {
     const handler = () => {
@@ -97,6 +108,11 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
     localStorage.setItem(STORAGE_KEY_TIMER_CONTROLS, String(next));
   }, []);
 
+  const setThemeMode = useCallback((mode: ThemeMode) => {
+    setThemeModeState(mode);
+    localStorage.setItem(STORAGE_KEY_THEME_MODE, mode);
+  }, []);
+
   const value = useMemo<ClockSettingsContextType>(
     () => ({
       cursorHideSeconds,
@@ -109,6 +125,8 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowPomodoroControls,
       showTimerControls,
       setShowTimerControls,
+      themeMode,
+      setThemeMode,
     }),
     [
       cursorHideSeconds,
@@ -121,6 +139,8 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowPomodoroControls,
       showTimerControls,
       setShowTimerControls,
+      themeMode,
+      setThemeMode,
     ],
   );
 

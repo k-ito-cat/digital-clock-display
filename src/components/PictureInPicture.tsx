@@ -184,7 +184,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       type="button"
       onClick={togglePip}
       aria-label={isInPip ? 'Picture in Picture を終了' : 'Picture in Picture を開始'}
-      className={clsx('flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50', className)}
+      className={clsx('btn-theme flex h-11 w-11 items-center justify-center rounded-full transition hover:-translate-y-[1px]', className)}
     >
       {isInPip ? <PictureInPictureAltOutlinedIcon fontSize="small" /> : <PictureInPictureAltIcon fontSize="small" />}
     </button>

@@ -76,7 +76,7 @@ export const PomodoroTimer = () => {
   ];
 
   return (
-    <div className="mx-4 w-full select-none max-w-[420px] border-white px-4 py-2 sm:mx-8">
+    <div className="surface-secondary mx-4 w-full select-none max-w-[420px] rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8">
       <div className="mb-4 flex justify-center">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));
@@ -84,15 +84,15 @@ export const PomodoroTimer = () => {
           const ring = `conic-gradient(rgba(255,255,255,0.95) 0% ${percent}%, rgba(255,255,255,0.25) ${percent}% 100%)`;
           return (
             <div className="relative h-12 w-12 sm:h-14 sm:w-14">
-              <div className="absolute inset-0 rounded-full" style={{ background: ring }} />
-              <div className="absolute inset-[3px] sm:inset-1 flex items-center justify-center rounded-full bg-white/90 text-xs font-semibold text-gray-700 shadow-md sm:text-sm">
+              <div className="absolute inset-0 rounded-full border-[3px] border-theme" style={{ background: ring }} />
+              <div className="surface-contrast absolute inset-[3px] sm:inset-1 flex items-center justify-center rounded-full text-xs font-semibold text-force-light shadow sm:text-sm">
                 {currentSet}/{totalSets}
               </div>
             </div>
           );
         })()}
       </div>
-      <p className="text-center text-[64px] tracking-[.1em] text-white">
+      <p className="text-theme-primary text-center text-[48px] font-semibold tracking-[.1em] text-force-light sm:text-[64px]">
         {formatTime(remainingSeconds)}
       </p>
       {showPomodoroControls && (

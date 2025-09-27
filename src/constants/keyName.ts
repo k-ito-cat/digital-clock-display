@@ -10,3 +10,4 @@ export const STORAGE_KEY_CLOCK_SHOW_DATE = "clock-show-date";
 export const STORAGE_KEY_CLOCK_TIME_FORMAT = "clock-time-format";
 export const STORAGE_KEY_POMODORO_CONTROLS = "pomodoro-controls-visible";
 export const STORAGE_KEY_TIMER_CONTROLS = "timer-controls-visible";
+export const STORAGE_KEY_THEME_MODE = "theme-mode";

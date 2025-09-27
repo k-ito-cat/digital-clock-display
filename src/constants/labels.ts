@@ -23,4 +23,11 @@ export const TIMER_TEXT = {
   reset: 'リセット',
 } as const;
 
+export const THEME_TEXT = {
+  title: '全体テーマ',
+  description: 'テキストカラーと背景コントラストを切り替えます',
+  dark: 'ダーク',
+  light: 'ホワイト',
+} as const;
+
 

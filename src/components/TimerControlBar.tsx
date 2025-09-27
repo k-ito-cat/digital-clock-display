@@ -38,20 +38,20 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
   })();
 
   return (
-    <div className={clsx('w-full max-w-[420px] rounded-2xl bg-white/90 px-4 py-3 shadow-md', className)}>
+    <div className={clsx('surface-secondary w-full max-w-[420px] rounded-3xl px-4 py-3 shadow-lg backdrop-blur-sm text-theme-primary', className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className={clsx('grid w-full grid-cols-1 gap-2 sm:gap-3', responsiveGridClass)}>
           {selects.map((select) => (
             <div key={select.id} className="flex flex-col">
               {select.label && (
-                <label className="mb-1 text-[10px] font-semibold text-gray-500 sm:text-xs">
+                <label className="text-theme-muted mb-1 text-[10px] font-semibold sm:text-xs">
                   {select.label}
                 </label>
               )}
               <div className="relative">
                 <select
                   className={clsx(
-                    'w-full bg-white/90',
+                    'input-surface w-full rounded-lg px-3 py-1.5 text-sm font-semibold text-inherit',
                     select.minWidthClass,
                   )}
                   value={select.value}
@@ -76,7 +76,7 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
               disabled={action.disabled}
               aria-label={action.ariaLabel}
               title={action.title ?? action.ariaLabel}
-              className="text-gray-700"
+              className="btn-theme hover:shadow-lg flex h-11 w-11 items-center justify-center rounded-full text-base transition hover:-translate-y-[1px] disabled:opacity-40"
             >
               {action.icon}
             </button>

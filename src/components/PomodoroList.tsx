@@ -46,19 +46,19 @@ export const PomodoroList = () => {
       <div
         key={animKey}
         className={clsx(
-          'flex h-auto w-full max-w-[220px] flex-col items-center justify-center gap-2 rounded bg-white/30 text-gray-800 py-4 shadow',
-          'border-l-4 border-white/70 px-3 sm:max-w-[208px]',
+          'surface-contrast flex h-auto w-full max-w-[240px] flex-col items-center justify-center gap-2 rounded-xl py-4 shadow-md sm:max-w-[228px]',
+          'px-3 backdrop-blur',
         )}
       >
         {displayItems.length === 1 ? (
-          <div className="text-base font-semibold transition-all duration-300 ease-in-out">{displayItems[0]}</div>
+          <div className="text-base font-semibold text-force-light transition-all duration-300 ease-in-out">{displayItems[0]}</div>
         ) : (
           <>
-            <div className="text-sm font-semibold opacity-70 transition-all duration-300 ease-in-out">{displayItems[0]}</div>
-            <div className="text-lg font-semibold transition-transform duration-300 ease-in-out" style={{ transform: 'scale(1.05)' }}>
+            <div className="text-theme-muted text-force-light text-sm font-semibold transition-all duration-300 ease-in-out">{displayItems[0]}</div>
+            <div className="text-force-light text-lg font-semibold transition-transform duration-300 ease-in-out" style={{ transform: 'scale(1.05)' }}>
               {displayItems[1]}
             </div>
-            <div className="text-sm font-semibold opacity-70 transition-all duration-300 ease-in-out">{displayItems[2]}</div>
+            <div className="text-theme-muted text-force-light text-sm font-semibold transition-all duration-300 ease-in-out">{displayItems[2]}</div>
           </>
         )}
       </div>

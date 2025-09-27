@@ -15,6 +15,8 @@ import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import RadioGroup from "@mui/material/RadioGroup";
+import Radio from "@mui/material/Radio";
 import {
   DEFAULT_FETCH_INTERVAL,
   INTERVAL_TIME,
@@ -25,8 +27,9 @@ import { getNextFetchTime } from "~/utils/nextFetchTime";
 import PhotoIcon from "@mui/icons-material/Photo";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useUnsplashImageContext } from "~/context/UnsplashImageContext";
-import { useClockSettings } from "~/context/ClockSettingsContext";
+import { useClockSettings, ThemeMode } from "~/context/ClockSettingsContext";
 import type { TimeFormat } from "~/hooks/useCurrentTime";
+import { THEME_TEXT } from "~/constants/labels";
 
 // TODO: type model
 interface SettingDrawerProps {
@@ -82,6 +85,8 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     setShowPomodoroControls,
     showTimerControls,
     setShowTimerControls,
+    themeMode,
+    setThemeMode,
   } = useClockSettings();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -146,6 +151,27 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     >
       <List sx={{ px: 2, py: 4 }}>
         <SectionLabel>全体</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            {THEME_TEXT.description}
+          </Typography>
+          <RadioGroup
+            value={themeMode}
+            onChange={(event) => setThemeMode(event.target.value as ThemeMode)}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}
+          >
+            <FormControlLabel
+              value="dark"
+              control={<Radio size="small" />}
+              label={THEME_TEXT.light}
+              />
+            <FormControlLabel
+              value="light"
+              control={<Radio size="small" />}
+              label={THEME_TEXT.dark}
+            />
+          </RadioGroup>
+        </ListItem>
         <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel htmlFor="interval-select">背景画像の切替間隔</InputLabel>

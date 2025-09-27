@@ -25,10 +25,7 @@ export const FullScreen = ({ className }: FullScreenProps) => {
       type="button"
       onClick={handleFullScreen}
       aria-label={isFullScreen ? 'フルスクリーンを終了' : 'フルスクリーン表示'}
-      className={clsx(
-        'flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50',
-        className,
-      )}
+      className={clsx('btn-theme flex h-11 w-11 items-center justify-center rounded-full transition hover:-translate-y-[1px]', className)}
     >
       {isFullScreen ? <FullscreenExitIcon fontSize="small" /> : <FullscreenIcon fontSize="small" />}
     </button>

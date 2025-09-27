@@ -3,6 +3,7 @@ import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
 import { UnsplashImageProvider } from "~/context/UnsplashImageContext";
 import { useClockSettings } from "~/context/ClockSettingsContext";
+import clsx from "clsx";
 
 // TODO: type model
 interface WrapperProps {
@@ -14,7 +15,7 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     const { photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
-    const { cursorHideSeconds } = useClockSettings();
+    const { cursorHideSeconds, themeMode } = useClockSettings();
 
     useEffect(() => {
       autoHideCursor(true, cursorHideSeconds);
@@ -24,7 +25,10 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
       <UnsplashImageProvider value={{ photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query }}>
         <div
           id="clock-bg-image"
-          className="flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
+          className={clsx(
+            "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center",
+            themeMode === "dark" ? "theme-dark" : "theme-light"
+          )}
           style={{ backgroundImage: `url(${photoUrl})` }}
           data-unsplash-query={query}
         >
