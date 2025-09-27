@@ -3,6 +3,8 @@ import PictureInPictureAltOutlinedIcon from '@mui/icons-material/PictureInPictur
 import { useEffect, useRef, useState } from 'react';
 import { useCurrentTime } from '~/hooks/useCurrentTime';
 import { useUnsplashImageContext } from '~/context/UnsplashImageContext';
+import { useViewContext } from '~/context/ViewContext';
+import { usePomodoroContext } from '~/context/PomodoroContext';
 
 export const PictureInPicture = () => {
   const timeText = useCurrentTime();
@@ -10,6 +12,8 @@ export const PictureInPicture = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { photoUrl } = useUnsplashImageContext();
+  const { view } = useViewContext();
+  const { remainingSeconds, currentSet, totalSets, mode } = usePomodoroContext();
 
   useEffect(() => {
     const canvas = document.createElement('canvas');
@@ -39,7 +43,7 @@ export const PictureInPicture = () => {
     };
   }, []);
 
-  // 時計の描画
+  // 描画
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -71,30 +75,47 @@ export const PictureInPicture = () => {
 
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
 
-        drawClockText(ctx, canvas.width, canvas.height, timeText);
+        drawCenterText(ctx, canvas.width, canvas.height);
       };
       img.src = photoUrl;
     } else {
       ctx.fillStyle = '#111827';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      drawClockText(ctx, canvas.width, canvas.height, timeText);
+      drawCenterText(ctx, canvas.width, canvas.height);
     }
-  }, [timeText, photoUrl]);
+  }, [timeText, photoUrl, view, remainingSeconds, currentSet, totalSets, mode]);
 
-  const drawClockText = (
+  const drawCenterText = (
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
-    text: string,
   ) => {
-    ctx.fillStyle = '#FFFFFF';
+    const base = Math.min(width, height);
+    const big = `${Math.floor(base * 0.28)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
+    const small = `${Math.floor(base * 0.08)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const base = Math.min(width, height);
-    ctx.font = `${Math.floor(base * 0.28)}px Roboto, system-ui, -apple-system, Segoe UI, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'`;
     ctx.shadowColor = 'rgba(0,0,0,0.4)';
     ctx.shadowBlur = 8;
-    ctx.fillText(text, width / 2, height / 2);
+    ctx.fillStyle = '#FFFFFF';
+
+    if (view === 'pomodoro') {
+      const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+      const s = Math.floor(remainingSeconds % 60).toString().padStart(2, '0');
+      const timer = `${m}:${s}`;
+
+      ctx.font = big;
+      ctx.fillText(timer, width / 2, height / 2);
+
+      ctx.font = small;
+      const modeLabel = mode === 'work' ? '作業' : mode === 'shortBreak' ? '小休憩' : mode === 'longBreak' ? '長休憩' : '待機';
+      ctx.fillText(`セット ${currentSet}/${totalSets} ・ ${modeLabel}`, width / 2, height / 2 + base * 0.22);
+    } else {
+      ctx.font = big;
+      ctx.fillText(timeText, width / 2, height / 2);
+    }
+
     ctx.shadowBlur = 0;
   };
 

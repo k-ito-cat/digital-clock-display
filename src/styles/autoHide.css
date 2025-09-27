@@ -1,0 +1,9 @@
+.auto-hide-ui {
+  transition: opacity 240ms ease;
+}
+#clock-bg-image.cursor-none .auto-hide-ui {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
