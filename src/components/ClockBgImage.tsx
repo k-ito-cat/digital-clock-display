@@ -1,6 +1,7 @@
 import React, { memo, ReactNode, useEffect } from "react";
 import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
+import { UnsplashImageProvider } from "~/context/UnsplashImageContext";
 
 // TODO: type model
 interface WrapperProps {
@@ -20,15 +21,17 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     }, [autoHideCursor, photoUrl]);
 
     return (
-      <div
-        id="clock-bg-image"
-        className={
-          "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
-        }
-        style={{ backgroundImage: `url(${photoUrl})` }}
-      >
-        {children}
-      </div>
+      <UnsplashImageProvider value={{ photoUrl }}>
+        <div
+          id="clock-bg-image"
+          className={
+            "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
+          }
+          style={{ backgroundImage: `url(${photoUrl})` }}
+        >
+          {children}
+        </div>
+      </UnsplashImageProvider>
     );
   },
 );
