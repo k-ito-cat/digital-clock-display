@@ -51,6 +51,15 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
             textTransform: 'none',
             fontWeight: value === 'top' ? 700 : 500,
             borderRadius: 9999,
+            transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.95)',
+            },
+            '&[aria-selected="true"]': {
+              backgroundColor: '#ffffff',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              color: '#111827',
+            },
           }}
         />
         <Tab
@@ -65,6 +74,15 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
             textTransform: 'none',
             fontWeight: value === 'pomodoro' ? 700 : 500,
             borderRadius: 9999,
+            transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.95)',
+            },
+            '&[aria-selected="true"]': {
+              backgroundColor: '#ffffff',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              color: '#111827',
+            },
           }}
         />
       </Tabs>
