@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { ReactNode } from 'react';
+import { useClockSettings } from '~/context/ClockSettingsContext';
 
 type SelectOption = {
   value: string | number;
@@ -31,6 +32,7 @@ interface TimerControlBarProps {
 }
 
 export const TimerControlBar = ({ selects, actions, className }: TimerControlBarProps) => {
+  const { surfaceBackgroundEnabled } = useClockSettings();
   const responsiveGridClass = (() => {
     if (selects.length >= 3) return 'sm:grid-cols-3';
     if (selects.length === 2) return 'sm:grid-cols-2';
@@ -38,7 +40,13 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
   })();
 
   return (
-    <div className={clsx('surface-secondary w-full max-w-[420px] rounded-3xl px-4 py-3 shadow-lg backdrop-blur-sm text-theme-primary', className)}>
+    <div
+      className={clsx(
+        'surface-secondary w-full max-w-[420px] select-none rounded-3xl px-4 py-3 shadow-lg backdrop-blur-sm',
+        !surfaceBackgroundEnabled && 'surface-background-off',
+        className,
+      )}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className={clsx('grid w-full grid-cols-1 gap-2 sm:gap-3', responsiveGridClass)}>
           {selects.map((select) => (

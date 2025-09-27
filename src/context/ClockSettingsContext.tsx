@@ -6,6 +6,8 @@ import {
   STORAGE_KEY_POMODORO_CONTROLS,
   STORAGE_KEY_TIMER_CONTROLS,
   STORAGE_KEY_THEME_MODE,
+  STORAGE_KEY_GLASS_ENABLED,
+  STORAGE_KEY_SHOW_SURFACE_BACKGROUND,
 } from '~/constants/keyName';
 import { TimeFormat } from '~/hooks/useCurrentTime';
 
@@ -27,6 +29,10 @@ type ClockSettingsContextType = {
   setShowTimerControls: (next: boolean) => void;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
+  glassmorphismEnabled: boolean;
+  setGlassmorphismEnabled: (next: boolean) => void;
+  surfaceBackgroundEnabled: boolean;
+  setSurfaceBackgroundEnabled: (next: boolean) => void;
 };
 
 const ClockSettingsContext = createContext<ClockSettingsContextType | undefined>(undefined);
@@ -67,6 +73,12 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
     readBoolean(STORAGE_KEY_TIMER_CONTROLS, true),
   );
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readThemeMode());
+  const [glassmorphismEnabled, setGlassmorphismEnabledState] = useState<boolean>(() =>
+    readBoolean(STORAGE_KEY_GLASS_ENABLED, true),
+  );
+  const [surfaceBackgroundEnabled, setSurfaceBackgroundEnabledState] = useState<boolean>(() =>
+    readBoolean(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, true),
+  );
 
   useEffect(() => {
     const handler = () => {
@@ -113,6 +125,16 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
     localStorage.setItem(STORAGE_KEY_THEME_MODE, mode);
   }, []);
 
+  const setGlassmorphismEnabled = useCallback((next: boolean) => {
+    setGlassmorphismEnabledState(next);
+    localStorage.setItem(STORAGE_KEY_GLASS_ENABLED, String(next));
+  }, []);
+
+  const setSurfaceBackgroundEnabled = useCallback((next: boolean) => {
+    setSurfaceBackgroundEnabledState(next);
+    localStorage.setItem(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, String(next));
+  }, []);
+
   const value = useMemo<ClockSettingsContextType>(
     () => ({
       cursorHideSeconds,
@@ -127,6 +149,10 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowTimerControls,
       themeMode,
       setThemeMode,
+      glassmorphismEnabled,
+      setGlassmorphismEnabled,
+      surfaceBackgroundEnabled,
+      setSurfaceBackgroundEnabled,
     }),
     [
       cursorHideSeconds,
@@ -141,6 +167,10 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowTimerControls,
       themeMode,
       setThemeMode,
+      glassmorphismEnabled,
+      setGlassmorphismEnabled,
+      surfaceBackgroundEnabled,
+      setSurfaceBackgroundEnabled,
     ],
   );
 

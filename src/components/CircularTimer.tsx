@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useMemo } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -21,7 +22,7 @@ export const CircularTimer = () => {
     reset,
     setRunning,
   } = useTimerContext();
-  const { showTimerControls } = useClockSettings();
+  const { showTimerControls, surfaceBackgroundEnabled } = useClockSettings();
 
   const progress = useMemo(
     () => (totalSeconds ? 1 - remainingSeconds / totalSeconds : 0),
@@ -110,7 +111,12 @@ export const CircularTimer = () => {
   ];
 
   return (
-    <div className="surface-secondary mx-4 w-full max-w-[420px] select-none rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8">
+    <div
+      className={clsx(
+        'surface-secondary mx-4 w-full max-w-[420px] select-none rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8',
+        !surfaceBackgroundEnabled && 'surface-background-off'
+      )}
+    >
       <div className="mb-6 flex justify-center">
         <div className="relative h-[220px] w-[220px] sm:h-[360px] sm:w-[360px]">
           <div

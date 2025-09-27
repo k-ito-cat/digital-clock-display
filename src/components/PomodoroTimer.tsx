@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useMemo } from 'react';
 import { usePomodoroContext } from '~/context/PomodoroContext';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -29,7 +30,7 @@ export const PomodoroTimer = () => {
     setWorkSeconds,
     setBreakSeconds,
   } = usePomodoroContext();
-  const { showPomodoroControls } = useClockSettings();
+  const { showPomodoroControls, surfaceBackgroundEnabled } = useClockSettings();
 
   const label = useMemo(() => {
     if (mode === 'idle') return POMODORO_TEXT.start;
@@ -76,7 +77,12 @@ export const PomodoroTimer = () => {
   ];
 
   return (
-    <div className="surface-secondary mx-4 w-full select-none max-w-[420px] rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8">
+    <div
+      className={clsx(
+        'surface-secondary mx-4 w-full select-none max-w-[420px] rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8',
+        !surfaceBackgroundEnabled && 'surface-background-off'
+      )}
+    >
       <div className="mb-4 flex justify-center">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));

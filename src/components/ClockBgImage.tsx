@@ -15,7 +15,7 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     const { photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
-    const { cursorHideSeconds, themeMode } = useClockSettings();
+    const { cursorHideSeconds, themeMode, glassmorphismEnabled, surfaceBackgroundEnabled } = useClockSettings();
 
     useEffect(() => {
       autoHideCursor(true, cursorHideSeconds);
@@ -27,7 +27,9 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
           id="clock-bg-image"
           className={clsx(
             "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center",
-            themeMode === "dark" ? "theme-dark" : "theme-light"
+            themeMode === "dark" ? "theme-dark" : "theme-light",
+            glassmorphismEnabled ? "glass-enabled" : "glass-disabled",
+            surfaceBackgroundEnabled ? "surface-background-on" : "surface-background-off"
           )}
           style={{ backgroundImage: `url(${photoUrl})` }}
           data-unsplash-query={query}

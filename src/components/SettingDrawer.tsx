@@ -87,6 +87,10 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     setShowTimerControls,
     themeMode,
     setThemeMode,
+    glassmorphismEnabled,
+    setGlassmorphismEnabled,
+    surfaceBackgroundEnabled,
+    setSurfaceBackgroundEnabled,
   } = useClockSettings();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -164,13 +168,33 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               value="dark"
               control={<Radio size="small" />}
               label={THEME_TEXT.light}
-              />
+            />
             <FormControlLabel
               value="light"
               control={<Radio size="small" />}
               label={THEME_TEXT.dark}
             />
           </RadioGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={glassmorphismEnabled}
+                onChange={(event) => setGlassmorphismEnabled(event.target.checked)}
+                color="primary"
+              />
+            }
+            label="すりガラス背景を有効にする"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={surfaceBackgroundEnabled}
+                onChange={(event) => setSurfaceBackgroundEnabled(event.target.checked)}
+                color="primary"
+              />
+            }
+            label="背景の色を表示"
+          />
         </ListItem>
         <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
           <FormControl variant="standard" fullWidth>
