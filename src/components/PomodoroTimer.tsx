@@ -16,7 +16,7 @@ export const PomodoroTimer = () => {
   }, [running, mode]);
 
   return (
-    <div className="mx-8 w-[280px] border-white px-4 py-2 sm:w-[380px] md:w-[400px]">
+    <div className="mx-8 w-[400px] border-white px-4 py-2">
       <div className="mb-4 flex justify-center">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));
@@ -32,7 +32,7 @@ export const PomodoroTimer = () => {
           );
         })()}
       </div>
-      <p className="text-center text-[40px] tracking-[.1em] text-white sm:text-[56px] md:text-[64px]">
+      <p className="text-center text-[64px] tracking-[.1em] text-white">
         {formatTime(remainingSeconds)}
       </p>
       <div className="mt-6 flex justify-center">
