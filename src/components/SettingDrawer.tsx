@@ -179,6 +179,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               defaultValue={intervalTime.state || DEFAULT_FETCH_INTERVAL}
               inputProps={{ name: "interval time", id: "interval-select" }}
               onChange={intervalTime.handler}
+              sx={{ pr: 2.5 }}
             >
               {INTERVAL_TIME.map((time) => (
                 <option key={time.value} value={time.value}>
@@ -193,6 +194,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               value={cursorHideSeconds}
               onChange={(event) => setCursorHideSeconds(Number(event.target.value) || 3)}
               inputProps={{ name: "cursor hide seconds", id: "cursor-hide-select" }}
+              sx={{ pr: 2.5 }}
             >
               {CURSOR_SECONDS_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -237,6 +239,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               value={query}
               onChange={(event) => changeQuery(event.target.value)}
               inputProps={{ name: "unsplash query", id: "unsplash-query-select" }}
+              sx={{ pr: 2.5 }}
             >
               {UNSPLASH_QUERIES.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -279,6 +282,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               value={timeFormat}
               onChange={(event) => setTimeFormat(event.target.value as TimeFormat)}
               inputProps={{ name: "time format", id: "time-format-select" }}
+              sx={{ pr: 2.5 }}
             >
               {TIME_FORMAT_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>

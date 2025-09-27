@@ -51,7 +51,7 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
               <div className="relative">
                 <select
                   className={clsx(
-                    'input-surface w-full rounded-lg px-3 py-1.5 text-sm font-semibold text-inherit',
+                    'input-surface w-full appearance-none rounded-lg px-3 pr-7 py-1.5 text-sm font-semibold text-inherit',
                     select.minWidthClass,
                   )}
                   value={select.value}
