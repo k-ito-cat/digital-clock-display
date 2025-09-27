@@ -6,13 +6,13 @@ export const ClockView = () => {
   const { timeText, dateText } = useCurrentTime(timeFormat);
 
   return (
-    <div className="mx-8  w-[400px] flex-col items-center border-white px-4 py-2">
+    <div className="mx-4 flex w-full max-w-[420px] select-none flex-col items-center border-white px-4 py-2 sm:mx-8">
       {showDate && (
-        <p className="text-center text-lg tracking-[.2em] text-white opacity-80">
+        <p className="text-center text-base tracking-[.18em] text-white opacity-80 sm:text-lg">
           {dateText}
         </p>
       )}
-      <p className="text-center text-[64px] tracking-[.1em] text-white">
+      <p className="text-center text-[48px] tracking-[.08em] text-white sm:text-[64px]">
         {timeText}
       </p>
     </div>

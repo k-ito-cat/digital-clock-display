@@ -76,7 +76,7 @@ export const PomodoroTimer = () => {
   ];
 
   return (
-    <div className="mx-8 w-[400px] border-white px-4 py-2">
+    <div className="mx-4 w-full select-none max-w-[420px] border-white px-4 py-2 sm:mx-8">
       <div className="mb-4 flex justify-center">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));

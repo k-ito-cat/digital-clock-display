@@ -129,20 +129,58 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
       }
     };
 
+  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+    <Typography
+      variant="subtitle2"
+      sx={{ fontWeight: 700, mb: 1.5, color: 'text.secondary', letterSpacing: 0.4 }}
+    >
+      {children}
+    </Typography>
+  );
+
   const list = () => (
     <Box
       role="presentation"
       onKeyDown={toggleDrawer(false)}
-      sx={{ width: 300 }}
+      sx={{ width: 320, maxWidth: '100vw' }}
     >
-      <List>
-        <ListItem>
-          <Stack spacing={1} width="100%">
-            <Button
-              variant="outlined"
-              startIcon={<PhotoIcon />}
-              onClick={() => fileInputRef.current?.click()}
+      <List sx={{ px: 2, py: 4 }}>
+        <SectionLabel>全体</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+          <FormControl variant="standard" fullWidth>
+            <InputLabel htmlFor="interval-select">背景画像の切替間隔</InputLabel>
+            <NativeSelect
+              defaultValue={intervalTime.state || DEFAULT_FETCH_INTERVAL}
+              inputProps={{ name: "interval time", id: "interval-select" }}
+              onChange={intervalTime.handler}
             >
+              {INTERVAL_TIME.map((time) => (
+                <option key={time.value} value={time.value}>
+                  {time.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormControl>
+          <FormControl variant="standard" fullWidth>
+            <InputLabel htmlFor="cursor-hide-select">カーソル非表示までの秒数</InputLabel>
+            <NativeSelect
+              value={cursorHideSeconds}
+              onChange={(event) => setCursorHideSeconds(Number(event.target.value) || 3)}
+              inputProps={{ name: "cursor hide seconds", id: "cursor-hide-select" }}
+            >
+              {CURSOR_SECONDS_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormControl>
+        </ListItem>
+        <Divider sx={{ my: 2 }} />
+        <SectionLabel>画像</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+          <Stack spacing={1} width="100%">
+            <Button variant="outlined" startIcon={<PhotoIcon />} onClick={() => fileInputRef.current?.click()}>
               画像をアップロード
             </Button>
             <input
@@ -163,29 +201,16 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
                 event.target.value = "";
               }}
             />
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<CloudUploadIcon />}
-              onClick={() => clearCustomBackground()}
-            >
+            <Button variant="outlined" color="secondary" startIcon={<CloudUploadIcon />} onClick={() => clearCustomBackground()}>
               Unsplashに戻す
             </Button>
           </Stack>
-        </ListItem>
-        <Divider sx={{ my: 1 }} />
-        <ListItem>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="unsplash-query-select">
-              Unsplashカテゴリ
-            </InputLabel>
+          <FormControl variant="standard" fullWidth>
+            <InputLabel htmlFor="unsplash-query-select">Unsplashカテゴリ</InputLabel>
             <NativeSelect
               value={query}
               onChange={(event) => changeQuery(event.target.value)}
-              inputProps={{
-                name: "unsplash query",
-                id: "unsplash-query-select",
-              }}
+              inputProps={{ name: "unsplash query", id: "unsplash-query-select" }}
             >
               {UNSPLASH_QUERIES.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -194,78 +219,40 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               ))}
             </NativeSelect>
           </FormControl>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              次の切替予定
+            </Typography>
+            <Typography variant="body1">{nextFetchTime}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="body2" color="text.secondary">
+              １時間あたりのリクエスト上限回数
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+              {limit.requestRemaining > 25 ? (
+                <Chip label={`${limit.requestRemaining} / ${limit.requestLimit}`} color="success" size="small" />
+              ) : limit.requestRemaining <= 0 ? (
+                <Chip label={`${limit.requestRemaining} / ${limit.requestLimit}`} color="error" size="small" />
+              ) : (
+                <Chip label={`${limit.requestRemaining} / ${limit.requestLimit}`} color="warning" size="small" />
+              )}
+            </Stack>
+          </Box>
         </ListItem>
-        <Divider sx={{ my: 1 }} />
-        <ListItem>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              別の背景画像へ切り替わるまでの間隔
-            </InputLabel>
-            <NativeSelect
-              defaultValue={intervalTime.state || DEFAULT_FETCH_INTERVAL}
-              inputProps={{
-                name: "interval time",
-                id: "uncontrolled-native",
-              }}
-              onChange={intervalTime.handler}
-            >
-              {INTERVAL_TIME.map((time) => {
-                return (
-                  <option key={time.value} value={time.value}>
-                    {time.label}
-                  </option>
-                );
-              })}
-            </NativeSelect>
-          </FormControl>
-        </ListItem>
-        <ListItem>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="cursor-hide-select">
-              カーソルを非表示にするまでの秒数
-            </InputLabel>
-            <NativeSelect
-              value={cursorHideSeconds}
-              onChange={(event) =>
-                setCursorHideSeconds(Number(event.target.value) || 3)
-              }
-              inputProps={{
-                name: "cursor hide seconds",
-                id: "cursor-hide-select",
-              }}
-            >
-              {CURSOR_SECONDS_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormControl>
-        </ListItem>
-        <ListItem>
+        <Divider sx={{ my: 2 }} />
+        <SectionLabel>時計</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1.5 }}>
           <FormControlLabel
-            control={
-              <Switch
-                checked={showDate}
-                onChange={(event) => setShowDate(event.target.checked)}
-                color="primary"
-              />
-            }
+            control={<Switch checked={showDate} onChange={(event) => setShowDate(event.target.checked)} color="primary" />}
             label="日付を表示"
           />
-        </ListItem>
-        <ListItem>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="time-format-select">
-              時刻フォーマット
-            </InputLabel>
+          <FormControl variant="standard" fullWidth>
+            <InputLabel htmlFor="time-format-select">時刻フォーマット</InputLabel>
             <NativeSelect
               value={timeFormat}
               onChange={(event) => setTimeFormat(event.target.value as TimeFormat)}
-              inputProps={{
-                name: "time format",
-                id: "time-format-select",
-              }}
+              inputProps={{ name: "time format", id: "time-format-select" }}
             >
               {TIME_FORMAT_OPTIONS.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -275,74 +262,23 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             </NativeSelect>
           </FormControl>
         </ListItem>
-        <Divider sx={{ my: 1 }} />
-        <ListItem>
+        <Divider sx={{ my: 2 }} />
+        <SectionLabel>ポモドーロ</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <FormControlLabel
-            control={
-              <Switch
-                checked={showPomodoroControls}
-                onChange={(event) => setShowPomodoroControls(event.target.checked)}
-                color="primary"
-              />
-            }
-            label="ポモドーロのコントロールを表示"
+            control={<Switch checked={showPomodoroControls} onChange={(event) => setShowPomodoroControls(event.target.checked)} color="primary" />}
+            label="コントロールを表示"
           />
         </ListItem>
-        <ListItem>
+        <Divider sx={{ my: 2 }} />
+        <SectionLabel>タイマー</SectionLabel>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <FormControlLabel
-            control={
-              <Switch
-                checked={showTimerControls}
-                onChange={(event) => setShowTimerControls(event.target.checked)}
-                color="primary"
-              />
-            }
-            label="タイマーのコントロールを表示"
+            control={<Switch checked={showTimerControls} onChange={(event) => setShowTimerControls(event.target.checked)} color="primary" />}
+            label="コントロールを表示"
           />
-        </ListItem>
-        <ListItem
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Typography variant="overline" gutterBottom sx={{ display: "block" }}>
-            別の画像へ切り替わる時間
-          </Typography>
-          <p>{nextFetchTime}</p>
-        </ListItem>
-        <ListItem
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Typography variant="overline" gutterBottom sx={{ display: "block" }}>
-            １時間あたりのリクエスト上限回数
-          </Typography>
-          <Stack direction="row" spacing={1}>
-            {limit.requestRemaining > 25 ? (
-              <Chip
-                label={limit.requestRemaining + " / " + limit.requestLimit}
-                color="success"
-              />
-            ) : limit.requestRemaining <= 25 ? (
-              <Chip
-                label={limit.requestRemaining + " / " + limit.requestLimit}
-                color="warning"
-              />
-            ) : limit.requestRemaining <= 0 ? (
-              <Chip
-                label={limit.requestRemaining + " / " + limit.requestLimit}
-                color="error"
-              />
-            ) : null}
-          </Stack>
         </ListItem>
       </List>
-      <Divider />
     </Box>
   );
 

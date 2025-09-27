@@ -46,8 +46,8 @@ export const PomodoroList = () => {
       <div
         key={animKey}
         className={clsx(
-          'flex h-auto w-44 flex-col items-center justify-center gap-2 rounded bg-white/30 text-gray-800 shadow  py-4 sm:w-52',
-          'border-l-4 border-white/70 px-3',
+          'flex h-auto w-full max-w-[220px] flex-col items-center justify-center gap-2 rounded bg-white/30 text-gray-800 py-4 shadow',
+          'border-l-4 border-white/70 px-3 sm:max-w-[208px]',
         )}
       >
         {displayItems.length === 1 ? (
