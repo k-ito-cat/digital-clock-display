@@ -9,6 +9,7 @@ import { CircularTimer } from '~/components/CircularTimer';
 import { ViewProvider } from '~/context/ViewContext';
 import { PomodoroProvider } from '~/context/PomodoroContext';
 import { SettingDrawer } from '~/components/SettingDrawer';
+import BrightnessHighIcon from '@mui/icons-material/BrightnessHigh';
 
 import { STORAGE_KEY_REQUEST_LIMIT } from '~/constants/keyName';
 
@@ -47,10 +48,25 @@ const ClockPage = () => {
       <PomodoroProvider>
         <ViewProvider value={{ view: tab }}>
           <TopTabs value={tab} onChange={setTab} />
-          <SettingDrawer limit={limit} />
           {tab === 'top' ? <ClockView /> : tab === 'pomodoro' ? <PomodoroTimer /> : <CircularTimer />}
-          <FullScreen />
-          <PictureInPicture />
+          <div className="auto-hide-ui absolute bottom-6 right-6 flex items-center gap-3">
+            <PictureInPicture />
+            <FullScreen />
+            <SettingDrawer
+              limit={limit}
+              renderTrigger={({ open, id }) => (
+                <button
+                  id={id}
+                  type="button"
+                  onClick={open}
+                  aria-label="設定"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50"
+                >
+                  <BrightnessHighIcon fontSize="small" />
+                </button>
+              )}
+            />
+          </div>
           {/* MEMO: ファビコンで使用しているアイコン icon8のクレジット */}
           <p className="md:text-base absolute bottom-2 left-4 text-xs text-white opacity-50">
             favicon by:&nbsp;

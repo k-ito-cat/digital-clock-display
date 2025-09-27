@@ -25,12 +25,15 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
         backgroundColor: 'rgba(255,255,255,0.9)',
         borderRadius: 9999,
         boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+        width: { xs: 'max-content', sm: 'auto' },
       }}
     >
       <Tabs
         value={value}
         onChange={handleChange}
         TabIndicatorProps={{ style: { display: 'none' } }}
+        variant="scrollable"
+        scrollButtons={false}
         sx={{
           minHeight: 0,
           '& .MuiTabs-flexContainer': {

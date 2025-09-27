@@ -1,12 +1,17 @@
 import PictureInPictureAltIcon from '@mui/icons-material/PictureInPictureAlt';
 import PictureInPictureAltOutlinedIcon from '@mui/icons-material/PictureInPictureAltOutlined';
+import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import { useCurrentTime } from '~/hooks/useCurrentTime';
 import { useUnsplashImageContext } from '~/context/UnsplashImageContext';
 import { useViewContext } from '~/context/ViewContext';
 import { usePomodoroContext } from '~/context/PomodoroContext';
 
-export const PictureInPicture = () => {
+type PictureInPictureProps = {
+  className?: string;
+};
+
+export const PictureInPicture = ({ className }: PictureInPictureProps) => {
   const timeText = useCurrentTime();
   const [isInPip, setIsInPip] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -156,15 +161,18 @@ export const PictureInPicture = () => {
 
   const isPipSupported = typeof HTMLVideoElement !== 'undefined' && 'requestPictureInPicture' in HTMLVideoElement.prototype;
 
-  return isPipSupported ? (
-    <div className="absolute bottom-24 right-6">
-      {isInPip ? (
-        <PictureInPictureAltOutlinedIcon className="cursor-pointer text-white" onClick={togglePip} />
-      ) : (
-        <PictureInPictureAltIcon className="cursor-pointer text-white" onClick={togglePip} />
-      )}
-    </div>
-  ) : null;
+  if (!isPipSupported) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={togglePip}
+      aria-label={isInPip ? 'Picture in Picture を終了' : 'Picture in Picture を開始'}
+      className={clsx('flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50', className)}
+    >
+      {isInPip ? <PictureInPictureAltOutlinedIcon fontSize="small" /> : <PictureInPictureAltIcon fontSize="small" />}
+    </button>
+  );
 };
 
 

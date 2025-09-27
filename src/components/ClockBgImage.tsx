@@ -2,6 +2,7 @@ import React, { memo, ReactNode, useEffect } from "react";
 import { useUnsplashImage } from "~/hooks/useUnsplashImage";
 import { useCursor } from "~/hooks/useCursor";
 import { UnsplashImageProvider } from "~/context/UnsplashImageContext";
+import { useClockSettings } from "~/hooks/useClockSettings";
 
 // TODO: type model
 interface WrapperProps {
@@ -10,24 +11,23 @@ interface WrapperProps {
 }
 export const ClockBgImage: React.FC<WrapperProps> = memo(
   ({ children, setLimit }) => {
-    const { photoUrl } = useUnsplashImage({ setLimit });
+    const { photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
+    const { cursorHideSeconds, cursorHideEnabled } = useClockSettings();
 
     useEffect(() => {
-      const setting = true; // これは設定値のモック
-      // TODO: 設定値を取得して動的にすること（有効/無効, インターバル秒数）
-      autoHideCursor(setting, 3);
-    }, [autoHideCursor, photoUrl]);
+      if (!cursorHideEnabled) return;
+      autoHideCursor(cursorHideEnabled, cursorHideSeconds);
+    }, [autoHideCursor, cursorHideEnabled, cursorHideSeconds, photoUrl]);
 
     return (
-      <UnsplashImageProvider value={{ photoUrl }}>
+      <UnsplashImageProvider value={{ photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query }}>
         <div
           id="clock-bg-image"
-          className={
-            "flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
-          }
+          className="flex h-[100dvh] w-full items-center justify-center bg-cover bg-center"
           style={{ backgroundImage: `url(${photoUrl})` }}
+          data-unsplash-query={query}
         >
           {children}
         </div>

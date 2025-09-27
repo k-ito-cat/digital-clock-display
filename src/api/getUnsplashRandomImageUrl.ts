@@ -1,10 +1,15 @@
 import { AxiosResponse } from "axios";
 import { unsplashApi } from "~/api/unsplash";
 
-export const getUnsplashRandomImageUrl = async () => {
+interface UnsplashRandomParams {
+  query?: string;
+}
+
+export const getUnsplashRandomImageUrl = async ({ query }: UnsplashRandomParams = {}) => {
   try {
-    // TODO: queryによる検索
-    const response: AxiosResponse = await unsplashApi.get("/photos/random");
+    const response: AxiosResponse = await unsplashApi.get("/photos/random", {
+      params: query ? { query } : undefined,
+    });
     const headers = response.headers;
     if (!headers) return;
 
@@ -14,7 +19,6 @@ export const getUnsplashRandomImageUrl = async () => {
 
     return { url, requestLimit, requestRemaining };
   } catch (error) {
-    // TODO: 403の時、API制限であることがわかるようなエラー表示
     console.error(error);
     return { url: "", requestLimit: 50, requestRemaining: 0 };
   }
