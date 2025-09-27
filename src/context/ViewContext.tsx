@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react';
 
-export type AppView = 'top' | 'pomodoro';
+export type AppView = 'top' | 'pomodoro' | 'timer';
 
 type ViewContextType = {
   view: AppView;

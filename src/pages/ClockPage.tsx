@@ -5,6 +5,7 @@ import { FullScreen } from '~/components/FullScreen';
 import { PictureInPicture } from '~/components/PictureInPicture';
 import { TopTabs } from '~/components/TopTabs';
 import { PomodoroTimer } from '~/components/PomodoroTimer';
+import { CircularTimer } from '~/components/CircularTimer';
 import { ViewProvider } from '~/context/ViewContext';
 import { PomodoroProvider } from '~/context/PomodoroContext';
 import { SettingDrawer } from '~/components/SettingDrawer';
@@ -39,7 +40,7 @@ const ClockPage = () => {
   }, []);
 
 
-  const [tab, setTab] = useState<'top' | 'pomodoro'>('top');
+  const [tab, setTab] = useState<'top' | 'pomodoro' | 'timer'>('top');
 
   return (
     <ClockBgImage setLimit={setLimit}>
@@ -47,7 +48,7 @@ const ClockPage = () => {
         <ViewProvider value={{ view: tab }}>
           <TopTabs value={tab} onChange={setTab} />
           <SettingDrawer limit={limit} />
-          {tab === 'top' ? <ClockView /> : <PomodoroTimer />}
+          {tab === 'top' ? <ClockView /> : tab === 'pomodoro' ? <PomodoroTimer /> : <CircularTimer />}
           <FullScreen />
           <PictureInPicture />
           {/* MEMO: ファビコンで使用しているアイコン icon8のクレジット */}
