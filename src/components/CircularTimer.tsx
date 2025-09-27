@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { TimerControlBar, TimerActionConfig, TimerSelectConfig } from './TimerControlBar';
+import { TIMER_TEXT } from '~/constants/labels';
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+const MAX_TOTAL = 23 * 3600 + 59 * 60 + 59;
 
 const formatHMS = (s: number) => {
   const h = Math.floor(s / 3600).toString().padStart(2, '0');
@@ -34,11 +40,89 @@ export const CircularTimer = () => {
   const progress = useMemo(() => (total ? 1 - remaining / total : 0), [total, remaining]);
   const percent = Math.round(clamp(progress, 0, 1) * 100);
 
-  const onToggle = () => setRunning((v) => !v);
-  const onReset = () => {
-    setRunning(false);
-    setRemaining(total);
-  };
+  const timeParts = useMemo(() => {
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    return { hours, minutes, seconds };
+  }, [total]);
+
+  useEffect(() => {
+    if (!running) {
+      setRemaining(total);
+    }
+  }, [total, running]);
+
+  const selectConfigs: TimerSelectConfig[] = [
+    {
+      id: 'timer-hours',
+      label: TIMER_TEXT.hours,
+      value: timeParts.hours,
+      onChange: (value) => {
+        const hours = clamp(Number(value || 0), 0, 23);
+        const newTotal = Math.min(MAX_TOTAL, hours * 3600 + timeParts.minutes * 60 + timeParts.seconds);
+        setTotal(newTotal);
+        setRemaining(newTotal);
+      },
+      options: Array.from({ length: 24 }, (_, i) => ({ value: i, label: i })),
+    },
+    {
+      id: 'timer-minutes',
+      label: TIMER_TEXT.minutes,
+      value: timeParts.minutes,
+      onChange: (value) => {
+        const mins = clamp(Number(value || 0), 0, 59);
+        const newTotal = Math.min(MAX_TOTAL, timeParts.hours * 3600 + mins * 60 + timeParts.seconds);
+        setTotal(newTotal);
+        setRemaining(newTotal);
+      },
+      options: Array.from({ length: 60 }, (_, i) => ({ value: i, label: i })),
+    },
+    {
+      id: 'timer-seconds',
+      label: TIMER_TEXT.seconds,
+      value: timeParts.seconds,
+      onChange: (value) => {
+        let secs = clamp(Number(value || 0), 0, 60);
+        let hours = timeParts.hours;
+        let mins = timeParts.minutes;
+
+        if (secs === 60) {
+          secs = 0;
+          mins += 1;
+        }
+
+        if (mins >= 60) {
+          hours += Math.floor(mins / 60);
+          mins = mins % 60;
+        }
+
+        hours = clamp(hours, 0, 23);
+        const newTotal = Math.min(MAX_TOTAL, hours * 3600 + mins * 60 + secs);
+        setTotal(newTotal);
+        setRemaining(newTotal);
+      },
+      options: Array.from({ length: 61 }, (_, i) => ({ value: i, label: i })),
+    },
+  ];
+
+  const actionConfigs: TimerActionConfig[] = [
+    {
+      id: 'toggle',
+      icon: running ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />,
+      ariaLabel: running ? TIMER_TEXT.pause : TIMER_TEXT.start,
+      onClick: () => setRunning((v) => !v),
+    },
+    {
+      id: 'reset',
+      icon: <RestartAltIcon fontSize="small" />,
+      ariaLabel: TIMER_TEXT.reset,
+      onClick: () => {
+        setRunning(false);
+        setRemaining(total);
+      },
+    },
+  ];
 
   return (
     <div className="mx-8 w-[400px] px-4 py-2">
@@ -60,53 +144,7 @@ export const CircularTimer = () => {
       </div>
 
       <div className="mt-4 flex justify-center">
-        <div className="rounded-full bg-white/90 px-2 py-1 shadow-md sm:px-3 sm:py-2">
-          <div className="flex items-center">
-            <select
-              className="bg-transparent px-2 py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm"
-              value={Math.floor(total / 3600)}
-              onChange={(e) => {
-                const hours = clamp(Number(e.target.value || 0), 0, 23);
-                const minutes = Math.floor((total % 3600) / 60);
-                const newTotal = hours * 3600 + minutes * 60;
-                setTotal(newTotal);
-                setRemaining(newTotal);
-              }}
-            >
-              {Array.from({ length: 24 }, (_, i) => i).map((h) => (
-                <option key={h} value={h}>
-                  {h} 時間
-                </option>
-              ))}
-            </select>
-            <span className="mx-1 h-5 w-px bg-gray-300/80 sm:mx-2" />
-            <select
-              className="bg-transparent px-2 py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm"
-              value={Math.floor((total % 3600) / 60)}
-              onChange={(e) => {
-                const mins = clamp(Number(e.target.value || 0), 0, 59);
-                const hours = Math.floor(total / 3600);
-                const newTotal = hours * 3600 + mins * 60;
-                setTotal(newTotal);
-                setRemaining(newTotal);
-              }}
-            >
-              {Array.from({ length: 60 }, (_, i) => i).map((m) => (
-                <option key={m} value={m}>
-                  {m} 分
-                </option>
-              ))}
-            </select>
-            <span className="mx-1 h-5 w-px bg-gray-300/80 sm:mx-2" />
-            <button onClick={onToggle} className="px-2 whitespace-nowrap py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm">
-              {running ? '一時停止' : '開始'}
-            </button>
-            <span className="mx-1 h-5 w-px bg-gray-300/80 sm:mx-2" />
-            <button onClick={onReset} className="px-2 whitespace-nowrap py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm">
-              リセット
-            </button>
-          </div>
-        </div>
+        <TimerControlBar selects={selectConfigs} actions={actionConfigs} />
       </div>
     </div>
   );

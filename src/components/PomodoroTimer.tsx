@@ -1,5 +1,11 @@
 import { useMemo } from 'react';
 import { usePomodoroContext } from '~/context/PomodoroContext';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { TimerControlBar, TimerSelectConfig, TimerActionConfig } from './TimerControlBar';
+import { PomodoroList } from './PomodoroList';
+import { POMODORO_TEXT } from '~/constants/labels';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -8,12 +14,51 @@ const formatTime = (seconds: number) => {
 };
 
 export const PomodoroTimer = () => {
-  const { remainingSeconds, running, toggle, reset, setTotalSets, currentSet, totalSets, mode } = usePomodoroContext();
+  const { remainingSeconds, running, toggle, reset, setTotalSets, currentSet, totalSets, mode, workSeconds, breakSeconds, setWorkSeconds, setBreakSeconds } = usePomodoroContext();
 
   const label = useMemo(() => {
-    if (mode === 'idle') return '開始';
-    return running ? '一時停止' : '再開';
+    if (mode === 'idle') return POMODORO_TEXT.start;
+    return running ? POMODORO_TEXT.pause : POMODORO_TEXT.resume;
   }, [running, mode]);
+
+  const selects: TimerSelectConfig[] = [
+    {
+      id: 'work-minutes',
+      label: POMODORO_TEXT.workMinutes,
+      value: Math.floor(workSeconds / 60),
+      onChange: (value) => setWorkSeconds(Number(value) * 60),
+      options: [...Array(121)].map((_, i) => ({ value: i, label: i })),
+    },
+    {
+      id: 'break-minutes',
+      label: POMODORO_TEXT.breakMinutes,
+      value: Math.floor(breakSeconds / 60),
+      onChange: (value) => setBreakSeconds(Number(value) * 60),
+      options: [...Array(61)].map((_, i) => ({ value: i, label: i })),
+    },
+    {
+      id: 'total-sets',
+      label: POMODORO_TEXT.totalSets,
+      value: totalSets,
+      onChange: (value) => setTotalSets(Number(value)),
+      options: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ value: n, label: n })),
+    },
+  ];
+
+  const actions: TimerActionConfig[] = [
+    {
+      id: 'toggle',
+      icon: running ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />,
+      ariaLabel: label,
+      onClick: toggle,
+    },
+    {
+      id: 'reset',
+      icon: <RestartAltIcon fontSize="small" />,
+      ariaLabel: POMODORO_TEXT.reset,
+      onClick: reset,
+    },
+  ];
 
   return (
     <div className="mx-8 w-[400px] border-white px-4 py-2">
@@ -36,36 +81,9 @@ export const PomodoroTimer = () => {
         {formatTime(remainingSeconds)}
       </p>
       <div className="mt-6 flex justify-center">
-        <div className="rounded-full bg-white/90 px-2 py-1 shadow-md sm:px-3 sm:py-2">
-          <div className="flex items-center">
-            <select
-              className="bg-transparent px-2 py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm"
-              value={totalSets}
-              onChange={(e) => setTotalSets(Number(e.target.value))}
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <option key={n} value={n}>
-                  {n}セット
-                </option>
-              ))}
-            </select>
-            <span className="mx-1 h-5 w-px bg-gray-300/80 sm:mx-2" />
-            <button
-              onClick={toggle}
-              className="px-2 py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm"
-            >
-              {label}
-            </button>
-            <span className="mx-1 h-5 w-px bg-gray-300/80 sm:mx-2" />
-            <button
-              onClick={reset}
-              className="px-2 py-1 text-xs font-semibold text-gray-700 sm:px-3 sm:py-1.5 sm:text-sm"
-            >
-              リセット
-            </button>
-          </div>
-        </div>
+        <TimerControlBar selects={selects} actions={actions} />
       </div>
+      <PomodoroList />
     </div>
   );
 };

@@ -8,38 +8,46 @@ type PomodoroContextType = {
   currentSet: number;
   totalSets: number;
   mode: PomodoroMode;
+  workSeconds: number;
+  breakSeconds: number;
   setTotalSets: (n: number) => void;
+  setWorkSeconds: (seconds: number) => void;
+  setBreakSeconds: (seconds: number) => void;
   toggle: () => void;
   reset: () => void;
 };
 
 const DEFAULT_WORK = 25 * 60;
-const DEFAULT_SHORT = 5 * 60;
-const DEFAULT_LONG = 15 * 60;
-const LONG_EVERY = 4; // 4セットごとにロングブレイク
+const DEFAULT_BREAK = 5 * 60;
 
 const PomodoroContext = createContext<PomodoroContextType>({
   remainingSeconds: DEFAULT_WORK,
   running: false,
-  currentSet: 1,
+  currentSet: 0,
   totalSets: 4,
   mode: 'idle',
+  workSeconds: DEFAULT_WORK,
+  breakSeconds: DEFAULT_BREAK,
   setTotalSets: () => {},
+  setWorkSeconds: () => {},
+  setBreakSeconds: () => {},
   toggle: () => {},
   reset: () => {},
 });
 
 export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
   const [running, setRunning] = useState(false);
-  const [currentSet, setCurrentSet] = useState(1);
+  const [currentSet, setCurrentSet] = useState(0);
   const [totalSets, setTotalSets] = useState(4);
   const [mode, setMode] = useState<PomodoroMode>('idle');
+  const [workSeconds, setWorkSeconds] = useState(DEFAULT_WORK);
+  const [breakSeconds, setBreakSeconds] = useState(DEFAULT_BREAK);
   const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_WORK);
   const timerRef = useRef<number | null>(null);
 
   const startWork = () => {
     setMode('work');
-    setRemainingSeconds(DEFAULT_WORK);
+    setRemainingSeconds(workSeconds);
     setRunning(true);
   };
 
@@ -51,15 +59,14 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
         setRunning(false);
         return;
       }
-      const isLongBreak = currentSet % LONG_EVERY === 0;
-      setMode(isLongBreak ? 'longBreak' : 'shortBreak');
-      setRemainingSeconds(isLongBreak ? DEFAULT_LONG : DEFAULT_SHORT);
+      setMode('shortBreak');
+      setRemainingSeconds(breakSeconds);
       setRunning(true);
     } else {
       // break -> next work
       setCurrentSet((v) => v + 1);
       setMode('work');
-      setRemainingSeconds(DEFAULT_WORK);
+      setRemainingSeconds(workSeconds);
       setRunning(true);
     }
   };
@@ -85,7 +92,7 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
   const toggle = () => {
     // 初回はwork開始
     if (mode === 'idle') {
-      setCurrentSet(1);
+      setCurrentSet((prev) => (prev === 0 ? 1 : prev));
       startWork();
       return;
     }
@@ -95,13 +102,32 @@ export const PomodoroProvider = ({ children }: { children: ReactNode }) => {
   const reset = () => {
     setRunning(false);
     setMode('idle');
-    setCurrentSet(1);
-    setRemainingSeconds(DEFAULT_WORK);
+    setCurrentSet(0);
+    setRemainingSeconds(workSeconds);
   };
 
+  useEffect(() => {
+    if (!running && mode === 'idle') {
+      setRemainingSeconds(workSeconds);
+    }
+  }, [workSeconds, running, mode]);
+
   const value = useMemo(
-    () => ({ remainingSeconds, running, currentSet, totalSets, mode, setTotalSets, toggle, reset }),
-    [remainingSeconds, running, currentSet, totalSets, mode],
+    () => ({
+      remainingSeconds,
+      running,
+      currentSet,
+      totalSets,
+      mode,
+      workSeconds,
+      breakSeconds,
+      setTotalSets,
+      setWorkSeconds,
+      setBreakSeconds,
+      toggle,
+      reset,
+    }),
+    [remainingSeconds, running, currentSet, totalSets, mode, workSeconds, breakSeconds],
   );
 
   return <PomodoroContext.Provider value={value}>{children}</PomodoroContext.Provider>;
