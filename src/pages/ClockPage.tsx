@@ -31,18 +31,23 @@ const ClockPage = () => {
 
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && 'Notification' in window && typeof Notification.requestPermission === 'function') {
-        Notification.requestPermission().then((result) => {
-          console.log(result);
-        }).catch(() => {
-          // noop
-        });
+      if (
+        typeof window !== 'undefined' &&
+        'Notification' in window &&
+        typeof Notification.requestPermission === 'function'
+      ) {
+        Notification.requestPermission()
+          .then((result) => {
+            console.log(result);
+          })
+          .catch(() => {
+            // noop
+          });
       }
     } catch (_) {
       // iOS Chrome など未対応環境での ReferenceError 防止
     }
   }, []);
-
 
   const [tab, setTab] = useState<'clock' | 'pomodoro' | 'timer'>('clock');
   const [interactionActive, setInteractionActive] = useState(false);
@@ -56,29 +61,35 @@ const ClockPage = () => {
     pointerType: 'none' as string,
   });
 
-  const changeTabByDirection = useCallback((direction: 'next' | 'prev') => {
-    setTab((current) => {
-      const index = tabOrder.indexOf(current);
-      if (direction === 'next' && index < tabOrder.length - 1) {
-        return tabOrder[index + 1];
-      }
-      if (direction === 'prev' && index > 0) {
-        return tabOrder[index - 1];
-      }
-      return current;
-    });
-  }, [setTab]);
+  const changeTabByDirection = useCallback(
+    (direction: 'next' | 'prev') => {
+      setTab((current) => {
+        const index = tabOrder.indexOf(current);
+        if (direction === 'next' && index < tabOrder.length - 1) {
+          return tabOrder[index + 1];
+        }
+        if (direction === 'prev' && index > 0) {
+          return tabOrder[index - 1];
+        }
+        return current;
+      });
+    },
+    [setTab],
+  );
 
-  const handleSwipeDelta = useCallback((deltaX: number, deltaY: number) => {
-    const horizontalDominant = Math.abs(deltaX) > Math.abs(deltaY);
-    const threshold = 60;
-    if (!horizontalDominant || Math.abs(deltaX) < threshold) return;
-    if (deltaX < 0) {
-      changeTabByDirection('next');
-    } else {
-      changeTabByDirection('prev');
-    }
-  }, [changeTabByDirection]);
+  const handleSwipeDelta = useCallback(
+    (deltaX: number, deltaY: number) => {
+      const horizontalDominant = Math.abs(deltaX) > Math.abs(deltaY);
+      const threshold = 60;
+      if (!horizontalDominant || Math.abs(deltaX) < threshold) return;
+      if (deltaX < 0) {
+        changeTabByDirection('next');
+      } else {
+        changeTabByDirection('prev');
+      }
+    },
+    [changeTabByDirection],
+  );
 
   const resetGesture = useCallback(() => {
     gestureState.current = {
@@ -95,6 +106,12 @@ const ClockPage = () => {
 
   const handlePointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    const target = event.target as Element | null;
+    if (target?.closest('button, a, input, select, textarea, label, [role="button"], [data-gesture-skip="true"]')) {
+      return;
+    }
+
     gestureState.current = {
       startX: event.clientX,
       startY: event.clientY,
@@ -119,27 +136,36 @@ const ClockPage = () => {
     gestureState.current.lastY = event.clientY;
   }, []);
 
-  const finalizeGesture = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    if (!gestureState.current.active) return;
-    if (gestureState.current.pointerId !== null && event.pointerId !== gestureState.current.pointerId) return;
-    const deltaX = event.clientX - gestureState.current.startX;
-    const deltaY = event.clientY - gestureState.current.startY;
-    handleSwipeDelta(deltaX, deltaY);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // noop
-    }
-    resetGesture();
-  }, [handleSwipeDelta, resetGesture]);
+  const finalizeGesture = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!gestureState.current.active) return;
+      if (gestureState.current.pointerId !== null && event.pointerId !== gestureState.current.pointerId) return;
+      const deltaX = event.clientX - gestureState.current.startX;
+      const deltaY = event.clientY - gestureState.current.startY;
+      handleSwipeDelta(deltaX, deltaY);
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {
+        // noop
+      }
+      resetGesture();
+    },
+    [handleSwipeDelta, resetGesture],
+  );
 
-  const handlePointerUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    finalizeGesture(event);
-  }, [finalizeGesture]);
+  const handlePointerUp = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      finalizeGesture(event);
+    },
+    [finalizeGesture],
+  );
 
-  const handlePointerCancel = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    finalizeGesture(event);
-  }, [finalizeGesture]);
+  const handlePointerCancel = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      finalizeGesture(event);
+    },
+    [finalizeGesture],
+  );
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -160,9 +186,9 @@ const ClockPage = () => {
   return (
     <ClockBgImage setLimit={setLimit}>
       <PomodoroProvider>
-          <ViewProvider value={{ view: tab }}>
-            <TopTabs value={tab} onChange={setTab} />
-            <div className="relative flex w-full justify-center">
+        <ViewProvider value={{ view: tab }}>
+          <TopTabs value={tab} onChange={setTab} />
+          <div className="relative flex w-full justify-center">
             <div
               className={clsx('relative w-full overflow-hidden', interactionActive ? 'cursor-grabbing' : 'cursor-grab')}
               style={{ touchAction: 'pan-y' }}
@@ -171,47 +197,47 @@ const ClockPage = () => {
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerCancel}
             >
-                <div
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${tabOrder.indexOf(tab) * 100}%)` }}
-                >
-                  <div className="w-full grid place-items-center shrink-0 px-4">
-                    <ClockView />
-                  </div>
-                  <div className="w-full grid place-items-center shrink-0 px-4">
-                    <PomodoroTimer />
-                  </div>
-                  <div className="w-full grid place-items-center shrink-0 px-4">
-                    <CircularTimer />
-                  </div>
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${tabOrder.indexOf(tab) * 100}%)` }}
+              >
+                <div className="grid w-full shrink-0 place-items-center px-4">
+                  <ClockView />
+                </div>
+                <div className="grid w-full shrink-0 place-items-center px-4">
+                  <PomodoroTimer />
+                </div>
+                <div className="grid w-full shrink-0 place-items-center px-4">
+                  <CircularTimer />
                 </div>
               </div>
             </div>
-            <div className="auto-hide-ui absolute bottom-4 right-4 flex items-center gap-2.5 text-theme-primary sm:bottom-6 sm:right-6 sm:gap-3">
-              <PictureInPicture className="btn-theme" />
-              <FullScreen className="btn-theme" />
-              <SettingDrawer
-                limit={limit}
-                renderTrigger={({ open, id }) => (
-                  <button
-                    id={id}
-                    type="button"
-                    onClick={open}
-                    aria-label="設定"
-                    className="btn-theme flex h-10 w-10 items-center justify-center rounded-full transition hover:-translate-y-[1px] sm:h-11 sm:w-11"
-                  >
-                    <BrightnessHighIcon fontSize="small" />
-                  </button>
-                )}
-              />
-            </div>
-            <p className="auto-hide-ui absolute bottom-2 left-4 text-xs text-white opacity-50 md:text-base">
-              favicon by:&nbsp;
-              <a href="https://icons8.com" target="_blank" rel="noreferrer">
-                Icons8
-              </a>
-            </p>
-          </ViewProvider>
+          </div>
+          <div className="auto-hide-ui text-theme-primary absolute bottom-4 right-4 flex items-center gap-2.5 sm:bottom-6 sm:right-6 sm:gap-3">
+            <PictureInPicture className="btn-theme" />
+            <FullScreen className="btn-theme" />
+            <SettingDrawer
+              limit={limit}
+              renderTrigger={({ open, id }) => (
+                <button
+                  id={id}
+                  type="button"
+                  onClick={open}
+                  aria-label="設定"
+                  className="btn-theme flex h-10 w-10 items-center justify-center rounded-full transition hover:-translate-y-[1px] sm:h-11 sm:w-11"
+                >
+                  <BrightnessHighIcon fontSize="small" />
+                </button>
+              )}
+            />
+          </div>
+          <p className="auto-hide-ui absolute bottom-2 left-4 text-xs text-white opacity-50 md:text-base">
+            favicon by:&nbsp;
+            <a href="https://icons8.com" target="_blank" rel="noreferrer">
+              Icons8
+            </a>
+          </p>
+        </ViewProvider>
       </PomodoroProvider>
     </ClockBgImage>
   );
