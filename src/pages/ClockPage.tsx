@@ -187,9 +187,9 @@ const ClockPage = () => {
                 </div>
               </div>
             </div>
-            <div className="auto-hide-ui absolute bottom-6 right-6 flex items-center gap-3">
-              <PictureInPicture />
-              <FullScreen />
+            <div className="auto-hide-ui absolute bottom-4 right-4 flex items-center gap-2.5 text-theme-primary sm:bottom-6 sm:right-6 sm:gap-3">
+              <PictureInPicture className="btn-theme" />
+              <FullScreen className="btn-theme" />
               <SettingDrawer
                 limit={limit}
                 renderTrigger={({ open, id }) => (
@@ -198,7 +198,7 @@ const ClockPage = () => {
                     type="button"
                     onClick={open}
                     aria-label="設定"
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white transition hover:bg-black/50"
+                    className="btn-theme flex h-10 w-10 items-center justify-center rounded-full transition hover:-translate-y-[1px] sm:h-11 sm:w-11"
                   >
                     <BrightnessHighIcon fontSize="small" />
                   </button>

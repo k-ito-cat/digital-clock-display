@@ -153,26 +153,26 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
       onKeyDown={toggleDrawer(false)}
       sx={{ width: 320, maxWidth: '100vw' }}
     >
-      <List sx={{ px: 2, py: 4 }}>
+      <List sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 2.5, sm: 4 } }}>
         <SectionLabel>全体</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
           <Typography variant="body2" color="text.secondary">
             {THEME_TEXT.description}
           </Typography>
           <RadioGroup
             value={themeMode}
             onChange={(event) => setThemeMode(event.target.value as ThemeMode)}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mt: 0.75 }}
           >
             <FormControlLabel
               value="dark"
               control={<Radio size="small" />}
-              label={THEME_TEXT.light}
-            />
+              label={THEME_TEXT.dark}
+              />
             <FormControlLabel
               value="light"
               control={<Radio size="small" />}
-              label={THEME_TEXT.dark}
+              label={THEME_TEXT.light}
             />
           </RadioGroup>
           <FormControlLabel
@@ -196,7 +196,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             label="背景の色を表示"
           />
         </ListItem>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
           <FormControl variant="standard" fullWidth>
             <InputLabel htmlFor="interval-select">背景画像の切替間隔</InputLabel>
             <NativeSelect
@@ -230,7 +230,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         </ListItem>
         <Divider sx={{ my: 2 }} />
         <SectionLabel>画像</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2 }}>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
           <Stack spacing={1} width="100%">
             <Button variant="outlined" startIcon={<PhotoIcon />} onClick={() => fileInputRef.current?.click()}>
               画像をアップロード
@@ -295,7 +295,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         </ListItem>
         <Divider sx={{ my: 2 }} />
         <SectionLabel>時計</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 1.5 }}>
+        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1, sm: 1.5 } }}>
           <FormControlLabel
             control={<Switch checked={showDate} onChange={(event) => setShowDate(event.target.checked)} color="primary" />}
             label="日付を表示"

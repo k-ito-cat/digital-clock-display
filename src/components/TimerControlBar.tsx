@@ -42,24 +42,24 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
   return (
     <div
       className={clsx(
-        'surface-secondary w-full max-w-[420px] select-none rounded-3xl px-4 py-3 shadow-lg backdrop-blur-sm',
+        'surface-secondary w-full max-w-[420px] select-none rounded-3xl px-2.5 py-2.5 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3',
         !surfaceBackgroundEnabled && 'surface-background-off',
         className,
       )}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
         <div className={clsx('grid w-full grid-cols-1 gap-2 sm:gap-3', responsiveGridClass)}>
           {selects.map((select) => (
             <div key={select.id} className="flex flex-col">
               {select.label && (
-                <label className="text-theme-muted mb-1 text-[10px] font-semibold sm:text-xs">
+                <label className="text-theme-muted mb-[2px] text-[10px] font-semibold sm:text-xs">
                   {select.label}
                 </label>
               )}
               <div className="relative">
                 <select
                   className={clsx(
-                    'input-surface w-full appearance-none rounded-lg px-3 pr-7 py-1.5 text-sm font-semibold text-inherit',
+                    'input-surface w-full appearance-none rounded-lg px-2.5 pr-6 py-[5px] text-[13px] font-semibold text-inherit sm:px-3 sm:py-1.5 sm:text-sm',
                     select.minWidthClass,
                   )}
                   value={select.value}
@@ -75,7 +75,7 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-end gap-2">
+        <div className="mt-1.5 flex items-center justify-end gap-2 sm:mt-0">
           {actions.map((action) => (
             <button
               key={action.id}
@@ -84,7 +84,7 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
               disabled={action.disabled}
               aria-label={action.ariaLabel}
               title={action.title ?? action.ariaLabel}
-              className="btn-theme hover:shadow-lg flex h-11 w-11 items-center justify-center rounded-full text-base transition hover:-translate-y-[1px] disabled:opacity-40"
+              className="btn-theme hover:shadow-lg flex h-9 w-9 items-center justify-center rounded-full text-sm transition hover:-translate-y-[1px] disabled:opacity-40 sm:h-11 sm:w-11 sm:text-base"
             >
               {action.icon}
             </button>

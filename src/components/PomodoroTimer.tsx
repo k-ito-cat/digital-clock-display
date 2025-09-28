@@ -79,17 +79,17 @@ export const PomodoroTimer = () => {
   return (
     <div
       className={clsx(
-        'surface-secondary mx-4 w-full select-none max-w-[420px] rounded-3xl px-5 py-6 shadow-lg backdrop-blur-sm sm:mx-8',
+        'surface-secondary mx-3 w-full select-none max-w-[420px] rounded-3xl px-4 py-5 shadow-lg backdrop-blur-sm sm:mx-8 sm:px-5 sm:py-6',
         !surfaceBackgroundEnabled && 'surface-background-off'
       )}
     >
-      <div className="mb-4 flex justify-center">
+      <div className="mb-3 flex justify-center sm:mb-4">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));
           const percent = Math.round(progress * 100);
           const ring = `conic-gradient(rgba(255,255,255,0.95) 0% ${percent}%, rgba(255,255,255,0.25) ${percent}% 100%)`;
           return (
-            <div className="relative h-12 w-12 sm:h-14 sm:w-14">
+            <div className="relative h-11 w-11 sm:h-14 sm:w-14">
               <div className="absolute inset-0 rounded-full border-[3px] border-theme" style={{ background: ring }} />
               <div className="surface-contrast absolute inset-[3px] sm:inset-1 flex items-center justify-center rounded-full text-xs font-semibold text-force-light shadow sm:text-sm">
                 {currentSet}/{totalSets}
@@ -98,15 +98,17 @@ export const PomodoroTimer = () => {
           );
         })()}
       </div>
-      <p className="text-theme-primary text-center text-[48px] font-semibold tracking-[.1em] text-force-light sm:text-[64px]">
+      <p className="text-theme-primary text-center text-[42px] font-semibold tracking-[.1em] sm:text-[64px]">
         {formatTime(remainingSeconds)}
       </p>
       {showPomodoroControls && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-5 flex justify-center sm:mt-6">
           <TimerControlBar selects={selects} actions={actions} />
         </div>
       )}
-      <PomodoroList />
+      <div className="mt-4 sm:mt-5">
+        <PomodoroList />
+      </div>
     </div>
   );
 };

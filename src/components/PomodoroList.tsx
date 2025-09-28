@@ -42,12 +42,12 @@ export const PomodoroList = () => {
   }, [currentSet, mode, isIdleWaiting]);
 
   return (
-    <div className="mt-4 flex justify-center">
+    <div className="mt-3 flex justify-center sm:mt-4">
       <div
         key={animKey}
         className={clsx(
-          'surface-contrast flex h-auto w-full max-w-[240px] flex-col items-center justify-center gap-2 rounded-xl py-4 shadow-md sm:max-w-[228px]',
-          'px-3 backdrop-blur',
+          'surface-contrast flex h-auto w-full max-w-[220px] flex-col items-center justify-center gap-2 rounded-xl px-3 py-3 shadow-md sm:max-w-[228px] sm:py-4',
+          'backdrop-blur',
         )}
       >
         {displayItems.length === 1 ? (
