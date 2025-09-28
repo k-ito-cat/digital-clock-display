@@ -16,6 +16,13 @@ const DEFAULT_TIME_FORMAT: TimeFormat = 'HH:mm:ss';
 export type ThemeMode = 'dark' | 'light';
 const DEFAULT_THEME_MODE: ThemeMode = 'dark';
 
+const isIosDevice = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || navigator.vendor || '';
+  const isTouchMac = typeof document !== 'undefined' && 'ontouchend' in document && ua.includes('Mac');
+  return /iPad|iPhone|iPod/.test(ua) || isTouchMac;
+};
+
 type ClockSettingsContextType = {
   cursorHideSeconds: number;
   setCursorHideSeconds: (seconds: number) => void;
@@ -74,7 +81,7 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
   );
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readThemeMode());
   const [glassmorphismEnabled, setGlassmorphismEnabledState] = useState<boolean>(() =>
-    readBoolean(STORAGE_KEY_GLASS_ENABLED, true),
+    readBoolean(STORAGE_KEY_GLASS_ENABLED, !isIosDevice()),
   );
   const [surfaceBackgroundEnabled, setSurfaceBackgroundEnabledState] = useState<boolean>(() =>
     readBoolean(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, true),
@@ -128,11 +135,19 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
   const setGlassmorphismEnabled = useCallback((next: boolean) => {
     setGlassmorphismEnabledState(next);
     localStorage.setItem(STORAGE_KEY_GLASS_ENABLED, String(next));
+    if (next) {
+      setSurfaceBackgroundEnabledState(true);
+      localStorage.setItem(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, 'true');
+    }
   }, []);
 
   const setSurfaceBackgroundEnabled = useCallback((next: boolean) => {
     setSurfaceBackgroundEnabledState(next);
     localStorage.setItem(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, String(next));
+    if (!next) {
+      setGlassmorphismEnabledState(false);
+      localStorage.setItem(STORAGE_KEY_GLASS_ENABLED, 'false');
+    }
   }, []);
 
   const value = useMemo<ClockSettingsContextType>(
