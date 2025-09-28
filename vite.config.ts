@@ -4,7 +4,6 @@ import path from 'path';
 import { VitePWA } from 'vite-plugin-pwa';
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/digital-clock-display/',
   plugins: [
     react(),
     VitePWA({
@@ -16,20 +15,20 @@ export default defineConfig({
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
-        start_url: '/digital-clock-display/',
+        start_url: '/',
         icons: [
           {
-            src: '/digital-clock-display/favicon.svg',
+            src: '/favicon.svg',
             sizes: '192x192',
             type: 'image/svg',
           },
           {
-            src: '/digital-clock-display/touch-icon.png',
+            src: '/touch-icon.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/digital-clock-display/touch-icon.png',
+            src: '/touch-icon.png',
             sizes: '180x180',
             type: 'image/png',
             purpose: 'any maskable',
