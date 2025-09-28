@@ -1,5 +1,7 @@
 # digital-clock-display
 
+<img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/18c85ae7-2686-4141-a593-215931a9cc21" />
+
 ## 使用技術
 
 - React + TypeScript + Vite
