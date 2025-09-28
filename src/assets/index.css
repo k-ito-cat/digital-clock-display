@@ -27,7 +27,7 @@
   --theme-primary: rgba(31, 31, 31, 0.95);
   --theme-secondary: rgba(17, 24, 39, 0.3);
   --theme-contrast: rgba(17, 24, 39, 0.85);
-  --theme-muted: rgba(69, 69, 69, 0.6);
+  --theme-muted: rgb(222, 222, 222);
   --theme-input-bg: rgba(17, 24, 39, 0.85);
   --theme-input-text: #ececec;
   --theme-button-bg: rgba(160, 160, 160, 0.641);
@@ -64,12 +64,6 @@ body.glass-disabled .surface-contrast {
 
 .text-theme-muted {
   color: var(--theme-muted);
-}
-
-.theme-dark .surface-secondary,
-.theme-dark .surface-contrast,
-.theme-dark .surface-primary {
-  color: #f9fafb;
 }
 
 .theme-dark .pomodoro-chip,
@@ -143,12 +137,6 @@ body.glass-disabled .surface-contrast {
 
 .text-theme-muted {
   color: var(--theme-muted);
-}
-
-.theme-light .surface-secondary,
-.theme-light .surface-contrast,
-.theme-light .surface-primary {
-  color: #111827;
 }
 
 .surface-primary {
