@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const unsplashApi = axios.create({
-  baseURL: "https://api.unsplash.com/",
+  baseURL: 'https://api.unsplash.com/',
   headers: {
-    Authorization: `Client-ID ${import.meta.env.VITE_ACCESS_KEY}`,
+    Authorization: `Client-ID ${import.meta.env.VITE_UNSPLASH_API_ACCESS_KEY}`,
   },
 });

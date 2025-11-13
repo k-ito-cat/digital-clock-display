@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "op run --env-file=.env.1password -- vite",
     "build": "tsc -b && vite build",
+    "build:local": "op run --env-file=.env.1password -- bash -c 'tsc -b && vite build'",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
