@@ -81,10 +81,10 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
   );
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readThemeMode());
   const [glassmorphismEnabled, setGlassmorphismEnabledState] = useState<boolean>(() =>
-    readBoolean(STORAGE_KEY_GLASS_ENABLED, !isIosDevice()),
+    readBoolean(STORAGE_KEY_GLASS_ENABLED, false),
   );
   const [surfaceBackgroundEnabled, setSurfaceBackgroundEnabledState] = useState<boolean>(() =>
-    readBoolean(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, true),
+    readBoolean(STORAGE_KEY_SHOW_SURFACE_BACKGROUND, false),
   );
 
   useEffect(() => {
