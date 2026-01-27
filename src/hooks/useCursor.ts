@@ -7,12 +7,6 @@ export const useCursor = () => {
   const autoHideCursor = (enabled: boolean, intervalSecond: number) => {
     const bgImageElement = document.getElementById("clock-bg-image");
 
-    const onMouseMove = () => {
-      bgImageElement?.classList.add("cursor-auto");
-      bgImageElement?.classList.remove("cursor-none");
-      hiddenCursor(intervalSecond);
-    };
-
     let timerId: NodeJS.Timeout;
     const hiddenCursor = (second: number) => {
       clearTimeout(timerId);
@@ -25,8 +19,23 @@ export const useCursor = () => {
       }, second * 1000);
     };
 
-    if (bgImageElement && enabled) {
-      bgImageElement.addEventListener("mousemove", onMouseMove);
+    const showUi = () => {
+      if (!bgImageElement) return;
+      bgImageElement.classList.add("cursor-auto");
+      bgImageElement.classList.remove("cursor-none");
+      hiddenCursor(intervalSecond);
+    };
+
+    if (!bgImageElement) return;
+
+    if (enabled) {
+      bgImageElement.classList.add("cursor-none");
+      bgImageElement.classList.remove("cursor-auto");
+      bgImageElement.addEventListener("mousemove", showUi);
+      bgImageElement.addEventListener("touchstart", showUi, { passive: true });
+      bgImageElement.addEventListener("pointerdown", showUi);
+    } else {
+      bgImageElement.classList.remove("cursor-none");
     }
   };
 
