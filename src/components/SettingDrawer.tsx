@@ -27,7 +27,8 @@ import { getNextFetchTime } from "~/utils/nextFetchTime";
 import PhotoIcon from "@mui/icons-material/Photo";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useUnsplashImageContext } from "~/context/UnsplashImageContext";
-import { useClockSettings, ThemeMode } from "~/context/ClockSettingsContext";
+import { useClockSettings } from "~/context/ClockSettingsContext";
+import type { ThemeMode, BackgroundType } from "~/context/ClockSettingsContext";
 import type { TimeFormat } from "~/hooks/useCurrentTime";
 import { THEME_TEXT } from "~/constants/labels";
 
@@ -61,6 +62,13 @@ const TIME_FORMAT_OPTIONS = [
   { label: "HH:mm", value: "HH:mm" },
 ];
 
+const BACKGROUND_TYPE_OPTIONS: Array<{ label: string; value: BackgroundType }> = [
+  { label: "画像", value: "image" },
+  { label: "白", value: "white" },
+  { label: "黒", value: "black" },
+  { label: "透明", value: "transparent" },
+];
+
 const TRIGGER_ID = "setting-button";
 
 export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps) => {
@@ -87,6 +95,10 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     setShowTimerControls,
     themeMode,
     setThemeMode,
+    backgroundType,
+    setBackgroundType,
+    textColor,
+    setTextColor,
     glassmorphismEnabled,
     setGlassmorphismEnabled,
     surfaceBackgroundEnabled,
@@ -195,6 +207,24 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             }
             label="背景の色を表示"
           />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              文字色
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box
+                component="input"
+                type="color"
+                aria-label="文字色を選択"
+                value={textColor || (themeMode === 'dark' ? '#ececec' : '#111827')}
+                onChange={(event) => setTextColor(event.target.value)}
+                sx={{ width: 48, height: 32, border: 'none', padding: 0, background: 'transparent', cursor: 'pointer' }}
+              />
+              <Button variant="text" size="small" onClick={() => setTextColor('')}>
+                デフォルトに戻す
+              </Button>
+            </Box>
+          </Box>
         </ListItem>
         <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
           <FormControl variant="standard" fullWidth>
@@ -231,6 +261,21 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         <Divider sx={{ my: 2 }} />
         <SectionLabel>画像</SectionLabel>
         <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
+          <FormControl variant="standard" fullWidth>
+            <InputLabel htmlFor="background-type-select">背景タイプ</InputLabel>
+            <NativeSelect
+              value={backgroundType}
+              onChange={(event) => setBackgroundType(event.target.value as BackgroundType)}
+              inputProps={{ name: "background type", id: "background-type-select" }}
+              sx={{ pr: 2.5 }}
+            >
+              {BACKGROUND_TYPE_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormControl>
           <Stack spacing={1} width="100%">
             <Button variant="outlined" startIcon={<PhotoIcon />} onClick={() => fileInputRef.current?.click()}>
               画像をアップロード

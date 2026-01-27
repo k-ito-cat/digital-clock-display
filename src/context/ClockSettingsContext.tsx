@@ -8,12 +8,15 @@ import {
   STORAGE_KEY_THEME_MODE,
   STORAGE_KEY_GLASS_ENABLED,
   STORAGE_KEY_SHOW_SURFACE_BACKGROUND,
+  STORAGE_KEY_BACKGROUND_TYPE,
+  STORAGE_KEY_TEXT_COLOR,
 } from '~/constants/keyName';
 import { TimeFormat } from '~/hooks/useCurrentTime';
 
 const DEFAULT_CURSOR_HIDE_SECONDS = 3;
 const DEFAULT_TIME_FORMAT: TimeFormat = 'HH:mm:ss';
 export type ThemeMode = 'dark' | 'light';
+export type BackgroundType = 'image' | 'white' | 'black' | 'transparent';
 const DEFAULT_THEME_MODE: ThemeMode = 'dark';
 
 const isIosDevice = () => {
@@ -36,6 +39,10 @@ type ClockSettingsContextType = {
   setShowTimerControls: (next: boolean) => void;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
+  backgroundType: BackgroundType;
+  setBackgroundType: (next: BackgroundType) => void;
+  textColor: string;
+  setTextColor: (next: string) => void;
   glassmorphismEnabled: boolean;
   setGlassmorphismEnabled: (next: boolean) => void;
   surfaceBackgroundEnabled: boolean;
@@ -67,6 +74,15 @@ const readThemeMode = () => {
   return stored ?? DEFAULT_THEME_MODE;
 };
 
+const readBackgroundType = () => {
+  const stored = localStorage.getItem(STORAGE_KEY_BACKGROUND_TYPE) as BackgroundType | null;
+  return stored ?? 'image';
+};
+
+const readTextColor = () => {
+  return localStorage.getItem(STORAGE_KEY_TEXT_COLOR) ?? '';
+};
+
 export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [cursorHideSeconds, setCursorHideSecondsState] = useState<number>(() =>
     readNumber(STORAGE_KEY_CURSOR_HIDE_SECONDS, DEFAULT_CURSOR_HIDE_SECONDS),
@@ -80,6 +96,8 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
     readBoolean(STORAGE_KEY_TIMER_CONTROLS, true),
   );
   const [themeMode, setThemeModeState] = useState<ThemeMode>(() => readThemeMode());
+  const [backgroundType, setBackgroundTypeState] = useState<BackgroundType>(() => readBackgroundType());
+  const [textColor, setTextColorState] = useState<string>(() => readTextColor());
   const [glassmorphismEnabled, setGlassmorphismEnabledState] = useState<boolean>(() =>
     readBoolean(STORAGE_KEY_GLASS_ENABLED, false),
   );
@@ -132,6 +150,21 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
     localStorage.setItem(STORAGE_KEY_THEME_MODE, mode);
   }, []);
 
+  const setBackgroundType = useCallback((next: BackgroundType) => {
+    setBackgroundTypeState(next);
+    localStorage.setItem(STORAGE_KEY_BACKGROUND_TYPE, next);
+  }, []);
+
+  const setTextColor = useCallback((next: string) => {
+    const value = next.trim();
+    setTextColorState(value);
+    if (value) {
+      localStorage.setItem(STORAGE_KEY_TEXT_COLOR, value);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_TEXT_COLOR);
+    }
+  }, []);
+
   const setGlassmorphismEnabled = useCallback((next: boolean) => {
     setGlassmorphismEnabledState(next);
     localStorage.setItem(STORAGE_KEY_GLASS_ENABLED, String(next));
@@ -164,6 +197,10 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowTimerControls,
       themeMode,
       setThemeMode,
+      backgroundType,
+      setBackgroundType,
+      textColor,
+      setTextColor,
       glassmorphismEnabled,
       setGlassmorphismEnabled,
       surfaceBackgroundEnabled,
@@ -182,6 +219,10 @@ export const ClockSettingsProvider = ({ children }: { children: ReactNode }) => 
       setShowTimerControls,
       themeMode,
       setThemeMode,
+      backgroundType,
+      setBackgroundType,
+      textColor,
+      setTextColor,
       glassmorphismEnabled,
       setGlassmorphismEnabled,
       surfaceBackgroundEnabled,

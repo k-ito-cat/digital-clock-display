@@ -15,7 +15,7 @@ type PictureInPictureProps = {
 };
 
 export const PictureInPicture = ({ className }: PictureInPictureProps) => {
-  const { timeFormat } = useClockSettings();
+  const { timeFormat, backgroundType, textColor } = useClockSettings();
   const { timeText } = useCurrentTime(timeFormat);
   const [isInPip, setIsInPip] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -80,7 +80,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       ctx.textBaseline = 'middle';
       ctx.shadowColor = 'rgba(0,0,0,0.4)';
       ctx.shadowBlur = 8;
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = textColor || '#FFFFFF';
 
       if (view === 'pomodoro') {
         const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
@@ -107,7 +107,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
 
       ctx.shadowBlur = 0;
     },
-    [view, remainingSeconds, mode, currentSet, totalSets, timerRemainingSeconds, timerRunning, timerTotalSeconds, timeText],
+    [view, remainingSeconds, mode, currentSet, totalSets, timerRemainingSeconds, timerRunning, timerTotalSeconds, timeText, textColor],
   );
 
   // 描画
@@ -118,7 +118,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
     if (!ctx) return;
 
     // Unsplash画像をキャンバスへ描画（存在しなければ単色）
-    if (photoUrl) {
+    if (backgroundType === 'image' && photoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -146,11 +146,28 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       };
       img.src = photoUrl;
     } else {
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (backgroundType === 'transparent') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = backgroundType === 'white' ? '#ffffff' : backgroundType === 'black' ? '#000000' : '#111827';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
       drawCenterText(ctx, canvas.width, canvas.height);
     }
-  }, [timeText, photoUrl, view, remainingSeconds, currentSet, totalSets, mode, timerRemainingSeconds, timerRunning, timerTotalSeconds, drawCenterText]);
+  }, [
+    timeText,
+    photoUrl,
+    view,
+    remainingSeconds,
+    currentSet,
+    totalSets,
+    mode,
+    timerRemainingSeconds,
+    timerRunning,
+    timerTotalSeconds,
+    drawCenterText,
+    backgroundType,
+  ]);
 
   const togglePip = async () => {
     try {
@@ -190,5 +207,3 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
     </button>
   );
 };
-
-

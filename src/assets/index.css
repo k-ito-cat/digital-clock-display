@@ -63,13 +63,13 @@ body.glass-disabled .surface-contrast {
 }
 
 .text-theme-muted {
-  color: var(--theme-muted);
+  color: var(--user-text-muted-color, var(--theme-muted));
 }
 
 .theme-dark .pomodoro-chip,
 .theme-dark .timer-ring-text,
 .theme-dark .text-force-light {
-  color: var(--theme-input-text);
+  color: var(--user-text-color, var(--theme-input-text));
 }
 
 .theme-dark .select-force-dark {
@@ -124,19 +124,19 @@ body.glass-disabled .surface-contrast {
 }
 
 .text-theme-primary {
-  color: var(--theme-primary);
+  color: var(--user-text-color, var(--theme-primary));
 }
 
 .theme-light .text-theme-muted {
-  color: var(--theme-muted);
+  color: var(--user-text-muted-color, var(--theme-muted));
 }
 
 .theme-dark .text-theme-muted {
-  color: var(--theme-muted);
+  color: var(--user-text-muted-color, var(--theme-muted));
 }
 
 .text-theme-muted {
-  color: var(--theme-muted);
+  color: var(--user-text-muted-color, var(--theme-muted));
 }
 
 .surface-primary {
