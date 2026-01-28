@@ -376,14 +376,14 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             <Select
               labelId="interval-select-label"
               id="interval-select"
-              value={intervalTime.state || DEFAULT_FETCH_INTERVAL}
+              value={String(intervalTime.state || DEFAULT_FETCH_INTERVAL)}
               label="背景画像の切替間隔"
               onChange={intervalTime.handler}
               MenuProps={menuProps}
               sx={selectSx}
             >
               {INTERVAL_TIME.map((time) => (
-                <MenuItem key={time.value} value={time.value}>
+                <MenuItem key={time.value} value={String(time.value)}>
                   {time.label}
                 </MenuItem>
               ))}
@@ -394,14 +394,14 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             <Select
               labelId="cursor-hide-select-label"
               id="cursor-hide-select"
-              value={cursorHideSeconds}
+              value={String(cursorHideSeconds)}
               label="カーソル非表示までの秒数"
               onChange={(event) => setCursorHideSeconds(Number(event.target.value) || 3)}
               MenuProps={menuProps}
               sx={selectSx}
             >
               {CURSOR_SECONDS_OPTIONS.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
+                <MenuItem key={item.value} value={String(item.value)}>
                   {item.label}
                 </MenuItem>
               ))}
