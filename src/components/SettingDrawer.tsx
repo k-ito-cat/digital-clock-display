@@ -1,10 +1,12 @@
 import * as React from "react";
-import { useState, memo, useEffect } from "react";
+import { useState, memo, useEffect, useLayoutEffect } from "react";
 import Box from "@mui/material/Box";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
+import Drawer from "@mui/material/Drawer";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -74,6 +76,8 @@ const TRIGGER_ID = "setting-button";
 export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps) => {
   const [drawerState, setDrawerState] = useState<boolean>(false);
   const [nextFetchTime, setNextFetchTime] = useState<string | null>(null);
+  const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollTopRef = React.useRef(0);
 
   const { intervalTime } = useSettingHandler();
   const {
@@ -125,6 +129,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
   };
 
   const handleOpen = () => {
+    scrollTopRef.current = 0;
     setDrawerState(true);
     addSettingIconAnimation();
   };
@@ -134,23 +139,18 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     addSettingIconAnimation();
   };
 
-  const toggleDrawer =
-    (open: boolean = true) =>
-    (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event &&
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
-      if (open) {
-        handleOpen();
-      } else {
-        handleClose();
-      }
-    };
+  const handleDrawerClose = (_event: unknown, reason?: 'backdropClick' | 'escapeKeyDown') => {
+    if (reason === 'escapeKeyDown') {
+      handleClose();
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!drawerState) return;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollTopRef.current;
+    }
+  });
 
   const isDark = themeMode === 'dark';
   const palette = {
@@ -277,7 +277,12 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
   const list = () => (
     <Box
       role="presentation"
-      onKeyDown={toggleDrawer(false)}
+      ref={scrollRef}
+      onScroll={() => {
+        if (scrollRef.current) {
+          scrollTopRef.current = scrollRef.current.scrollTop;
+        }
+      }}
       sx={{
         width: 340,
         maxWidth: '100vw',
@@ -290,6 +295,8 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         '& .MuiDivider-root': { borderColor: palette.divider },
         '& .MuiSwitch-root': { color: palette.label },
         '& .MuiRadio-root': { color: palette.label },
+        overflowY: 'auto',
+        maxHeight: '100vh',
       }}
     >
       <Box
@@ -301,11 +308,29 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
           boxShadow: palette.cardShadow,
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0.6, color: palette.text }}>設定</Typography>
-          <Typography variant="body2" sx={{ color: palette.textMuted }}>
-            背景・表示・タイマーの見た目をまとめてカスタマイズできます。
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0.6, color: palette.text }}>設定</Typography>
+            <Typography variant="body2" sx={{ color: palette.textMuted }}>
+              背景・表示・タイマーの見た目をまとめてカスタマイズできます。
+            </Typography>
+          </Box>
+          <IconButton
+            aria-label="閉じる"
+            onClick={handleClose}
+            size="small"
+            sx={{
+              color: palette.text,
+              border: `1px solid ${palette.cardBorder}`,
+              borderRadius: 1.5,
+              backgroundColor: isDark ? 'rgba(2, 6, 23, 0.35)' : '#f8fafc',
+              '&:hover': {
+                backgroundColor: isDark ? 'rgba(2, 6, 23, 0.5)' : '#f1f5f9',
+              },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </Box>
       </Box>
 
@@ -352,6 +377,8 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
                 aria-label="文字色を選択"
                 value={textColor || (themeMode === 'dark' ? '#ececec' : '#111827')}
                 onChange={(event) => setTextColor(event.target.value)}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
                 sx={{
                   width: 54,
                   height: 34,
@@ -429,33 +456,36 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               ))}
             </Select>
           </FormControl>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Typography variant="body2" sx={{ color: palette.textMuted }}>
-              単色の背景色
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, opacity: backgroundType === 'solid' ? 1 : 0.5 }}>
-              <Box
-                component="input"
-                type="color"
-                aria-label="背景色を選択"
-                value={backgroundColor || '#ffffff'}
-                onChange={(event) => setBackgroundColor(event.target.value)}
-                disabled={backgroundType !== 'solid'}
-                sx={{
-                  width: 54,
-                  height: 34,
-                  border: `1px solid ${palette.inputBorder}`,
-                  padding: 0,
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  borderRadius: 1,
-                }}
-              />
-              <Button variant="text" size="small" onClick={() => setBackgroundColor('#ffffff')} disabled={backgroundType !== 'solid'}>
-                白に戻す
-              </Button>
+          {backgroundType === 'solid' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="body2" sx={{ color: palette.textMuted }}>
+                単色の背景色
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box
+                  component="input"
+                  type="color"
+                  aria-label="背景色を選択"
+                  value={backgroundColor || '#ffffff'}
+                  onChange={(event) => setBackgroundColor(event.target.value)}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => event.stopPropagation()}
+                  sx={{
+                    width: 54,
+                    height: 34,
+                    border: `1px solid ${palette.inputBorder}`,
+                    padding: 0,
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    borderRadius: 1,
+                  }}
+                />
+                <Button variant="text" size="small" onClick={() => setBackgroundColor('#ffffff')}>
+                  白に戻す
+                </Button>
+              </Box>
             </Box>
-          </Box>
+          )}
           <Stack spacing={1} width="100%">
             <Button
               variant="outlined"
@@ -598,11 +628,11 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
           <BrightnessHighIcon sx={{ color: "white" }} />
         </Button>
       )}
-      <SwipeableDrawer
+      <Drawer
         anchor={"left"}
         open={drawerState}
-        onClose={toggleDrawer(false)}
-        onOpen={toggleDrawer()}
+        onClose={handleDrawerClose}
+        ModalProps={{ keepMounted: true }}
         PaperProps={{
           sx: {
             backgroundColor: palette.drawerBg,
@@ -612,7 +642,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         }}
       >
         {list()}
-      </SwipeableDrawer>
+      </Drawer>
     </>
   );
 });
