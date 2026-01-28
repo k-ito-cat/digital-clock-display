@@ -15,7 +15,7 @@ type PictureInPictureProps = {
 };
 
 export const PictureInPicture = ({ className }: PictureInPictureProps) => {
-  const { timeFormat, backgroundType, textColor } = useClockSettings();
+  const { timeFormat, backgroundType, backgroundColor, textColor } = useClockSettings();
   const { timeText } = useCurrentTime(timeFormat);
   const [isInPip, setIsInPip] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -149,7 +149,8 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
       if (backgroundType === 'transparent') {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       } else {
-        ctx.fillStyle = backgroundType === 'white' ? '#ffffff' : backgroundType === 'black' ? '#000000' : '#111827';
+        const resolved = backgroundType === 'solid' ? backgroundColor : backgroundType === 'white' ? '#ffffff' : backgroundType === 'black' ? '#000000' : '#111827';
+        ctx.fillStyle = resolved || '#111827';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
       drawCenterText(ctx, canvas.width, canvas.height);
@@ -167,6 +168,7 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
     timerTotalSeconds,
     drawCenterText,
     backgroundType,
+    backgroundColor,
   ]);
 
   const togglePip = async () => {

@@ -67,6 +67,7 @@ const BACKGROUND_TYPE_OPTIONS: Array<{ label: string; value: BackgroundType }> =
   { label: "白", value: "white" },
   { label: "黒", value: "black" },
   { label: "透明", value: "transparent" },
+  { label: "任意色", value: "solid" },
 ];
 
 const TRIGGER_ID = "setting-button";
@@ -97,6 +98,8 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
     setThemeMode,
     backgroundType,
     setBackgroundType,
+    backgroundColor,
+    setBackgroundColor,
     textColor,
     setTextColor,
     glassmorphismEnabled,
@@ -276,6 +279,25 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               ))}
             </NativeSelect>
           </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              単色の背景色
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, opacity: backgroundType === 'solid' ? 1 : 0.5 }}>
+              <Box
+                component="input"
+                type="color"
+                aria-label="背景色を選択"
+                value={backgroundColor || '#ffffff'}
+                onChange={(event) => setBackgroundColor(event.target.value)}
+                disabled={backgroundType !== 'solid'}
+                sx={{ width: 48, height: 32, border: 'none', padding: 0, background: 'transparent', cursor: 'pointer' }}
+              />
+              <Button variant="text" size="small" onClick={() => setBackgroundColor('#ffffff')} disabled={backgroundType !== 'solid'}>
+                白に戻す
+              </Button>
+            </Box>
+          </Box>
           <Stack spacing={1} width="100%">
             <Button variant="outlined" startIcon={<PhotoIcon />} onClick={() => fileInputRef.current?.click()}>
               画像をアップロード

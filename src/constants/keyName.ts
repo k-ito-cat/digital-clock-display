@@ -15,3 +15,4 @@ export const STORAGE_KEY_SHOW_SURFACE_BACKGROUND = "surface-background-enabled";
 export const STORAGE_KEY_THEME_MODE = "theme-mode";
 export const STORAGE_KEY_BACKGROUND_TYPE = "background-type";
 export const STORAGE_KEY_TEXT_COLOR = "text-color";
+export const STORAGE_KEY_BACKGROUND_COLOR = "background-color";

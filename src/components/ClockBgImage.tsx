@@ -15,7 +15,15 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
     const { photoUrl, isCustom, setCustomBackground, clearCustomBackground, changeQuery, query } = useUnsplashImage({ setLimit });
 
     const { autoHideCursor } = useCursor();
-    const { cursorHideSeconds, themeMode, glassmorphismEnabled, surfaceBackgroundEnabled, backgroundType, textColor } = useClockSettings();
+    const {
+      cursorHideSeconds,
+      themeMode,
+      glassmorphismEnabled,
+      surfaceBackgroundEnabled,
+      backgroundType,
+      backgroundColor,
+      textColor,
+    } = useClockSettings();
 
     useEffect(() => {
       autoHideCursor(true, cursorHideSeconds);
@@ -38,8 +46,17 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
 
     const normalizedTextColor = textColor.trim();
     const userTextMuted = normalizedTextColor ? resolveMutedColor(normalizedTextColor) : '';
-    const backgroundColor =
-      backgroundType === 'white' ? '#ffffff' : backgroundType === 'black' ? '#000000' : backgroundType === 'transparent' ? 'transparent' : undefined;
+    const normalizedBackgroundColor = backgroundColor.trim();
+    const resolvedBackgroundColor =
+      backgroundType === 'solid'
+        ? normalizedBackgroundColor || '#ffffff'
+        : backgroundType === 'white'
+          ? '#ffffff'
+          : backgroundType === 'black'
+            ? '#000000'
+            : backgroundType === 'transparent'
+              ? 'transparent'
+              : undefined;
     const backgroundImage = backgroundType === 'image' && photoUrl ? `url(${photoUrl})` : 'none';
 
     return (
@@ -54,7 +71,7 @@ export const ClockBgImage: React.FC<WrapperProps> = memo(
           )}
           style={{
             backgroundImage,
-            backgroundColor,
+            backgroundColor: resolvedBackgroundColor,
             ...(normalizedTextColor
               ? ({ ['--user-text-color' as string]: normalizedTextColor, ['--user-text-muted-color' as string]: userTextMuted } as React.CSSProperties)
               : {}),
