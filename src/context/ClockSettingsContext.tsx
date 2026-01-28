@@ -19,13 +19,6 @@ export type ThemeMode = 'dark' | 'light';
 export type BackgroundType = 'image' | 'white' | 'black' | 'transparent';
 const DEFAULT_THEME_MODE: ThemeMode = 'dark';
 
-const isIosDevice = () => {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || navigator.vendor || '';
-  const isTouchMac = typeof document !== 'undefined' && 'ontouchend' in document && ua.includes('Mac');
-  return /iPad|iPhone|iPod/.test(ua) || isTouchMac;
-};
-
 type ClockSettingsContextType = {
   cursorHideSeconds: number;
   setCursorHideSeconds: (seconds: number) => void;
