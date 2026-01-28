@@ -8,6 +8,7 @@
   }
 }
 
+
 .theme-light {
   color: #f9fafb;
   --theme-primary: rgba(17, 24, 39, 0.72);
@@ -20,6 +21,13 @@
   --theme-button-text: rgb(255, 255, 255);
   --theme-button-hover: rgba(0, 0, 0, 0.5);
   --theme-divider: rgba(255, 255, 255, 0.32);
+  --panel-bg: rgba(255, 255, 255, 0.92);
+  --panel-contrast-bg: rgba(255, 255, 255, 0.98);
+  --panel-border: rgba(15, 23, 42, 0.12);
+  --panel-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  --panel-soft-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  --panel-ring-strong: rgba(15, 23, 42, 0.2);
+  --panel-ring-weak: rgba(15, 23, 42, 0.06);
 }
 
 .theme-dark {
@@ -34,6 +42,13 @@
   --theme-button-text: rgb(17, 24, 39);
   --theme-button-hover: rgba(17, 24, 39, 0.18);
   --theme-divider: rgba(17, 24, 39, 0.2);
+  --panel-bg: rgba(17, 24, 39, 0.92);
+  --panel-contrast-bg: rgba(15, 23, 42, 0.92);
+  --panel-border: rgba(148, 163, 184, 0.2);
+  --panel-shadow: 0 12px 28px rgba(2, 6, 23, 0.55);
+  --panel-soft-shadow: 0 10px 20px rgba(2, 6, 23, 0.45);
+  --panel-ring-strong: rgba(148, 163, 184, 0.35);
+  --panel-ring-weak: rgba(148, 163, 184, 0.12);
 }
 
 body.glass-enabled .surface-primary,
@@ -157,4 +172,28 @@ body.glass-disabled .surface-contrast {
 .surface-background-off .surface-contrast {
   background-color: transparent;
   box-shadow: none;
+}
+
+.panel-surface {
+  background-color: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+
+.panel-contrast {
+  background-color: var(--panel-contrast-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-soft-shadow);
+}
+
+.panel-background-off {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.panel-background-off .panel-contrast {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }

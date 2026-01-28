@@ -10,6 +10,7 @@ import { CircularTimer } from '~/components/CircularTimer';
 import { ViewProvider } from '~/context/ViewContext';
 import { PomodoroProvider } from '~/context/PomodoroContext';
 import { SettingDrawer } from '~/components/SettingDrawer';
+import { AppTooltip } from '~/components/AppTooltip';
 import BrightnessHighIcon from '@mui/icons-material/BrightnessHigh';
 
 import { STORAGE_KEY_REQUEST_LIMIT } from '~/constants/keyName';
@@ -219,15 +220,17 @@ const ClockPage = () => {
             <SettingDrawer
               limit={limit}
               renderTrigger={({ open, id }) => (
-                <button
-                  id={id}
-                  type="button"
-                  onClick={open}
-                  aria-label="設定"
-                  className="btn-theme flex h-10 w-10 items-center justify-center rounded-full transition hover:-translate-y-[1px] sm:h-11 sm:w-11"
-                >
-                  <BrightnessHighIcon fontSize="small" />
-                </button>
+                <AppTooltip title="設定" placement="top">
+                  <button
+                    id={id}
+                    type="button"
+                    onClick={open}
+                    aria-label="設定"
+                    className="btn-theme flex h-10 w-10 items-center justify-center rounded-full transition hover:-translate-y-[1px] sm:h-11 sm:w-11"
+                  >
+                    <BrightnessHighIcon fontSize="small" />
+                  </button>
+                </AppTooltip>
               )}
             />
           </div>

@@ -3,6 +3,7 @@ import PictureInPictureAltOutlinedIcon from '@mui/icons-material/PictureInPictur
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useClockSettings } from '~/context/ClockSettingsContext';
+import { AppTooltip } from '~/components/AppTooltip';
 import { useCurrentTime } from '~/hooks/useCurrentTime';
 import { useUnsplashImageContext } from '~/context/UnsplashImageContext';
 import { useViewContext } from '~/context/ViewContext';
@@ -199,13 +200,15 @@ export const PictureInPicture = ({ className }: PictureInPictureProps) => {
   if (!isPipSupported) return null;
 
   return (
-    <button
-      type="button"
-      onClick={togglePip}
-      aria-label={isInPip ? 'Picture in Picture を終了' : 'Picture in Picture を開始'}
-      className={clsx('btn-theme flex h-11 w-11 items-center justify-center rounded-full transition hover:-translate-y-[1px]', className)}
-    >
-      {isInPip ? <PictureInPictureAltOutlinedIcon fontSize="small" /> : <PictureInPictureAltIcon fontSize="small" />}
-    </button>
+    <AppTooltip title={isInPip ? 'Picture in Picture を終了' : 'Picture in Picture を開始'} placement="top">
+      <button
+        type="button"
+        onClick={togglePip}
+        aria-label={isInPip ? 'Picture in Picture を終了' : 'Picture in Picture を開始'}
+        className={clsx('btn-theme flex h-11 w-11 items-center justify-center rounded-full transition hover:-translate-y-[1px]', className)}
+      >
+        {isInPip ? <PictureInPictureAltOutlinedIcon fontSize="small" /> : <PictureInPictureAltIcon fontSize="small" />}
+      </button>
+    </AppTooltip>
   );
 };

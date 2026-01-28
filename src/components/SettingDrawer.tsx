@@ -3,13 +3,12 @@ import { useState, memo, useEffect } from "react";
 import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import Button from "@mui/material/Button";
-import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import NativeSelect from "@mui/material/NativeSelect";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
@@ -153,43 +152,175 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
       }
     };
 
-  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <Typography
-      variant="subtitle2"
-      sx={{ fontWeight: 700, mb: 1.5, color: 'text.secondary', letterSpacing: 0.4 }}
+  const isDark = themeMode === 'dark';
+  const palette = {
+    drawerBg: isDark ? '#0b1220' : '#f7f7f8',
+    drawerBorder: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.08)',
+    cardBg: isDark ? '#111827' : '#ffffff',
+    cardBorder: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.08)',
+    cardShadow: isDark ? '0 10px 24px rgba(2, 6, 23, 0.45)' : '0 10px 24px rgba(15, 23, 42, 0.08)',
+    text: isDark ? '#e2e8f0' : '#0f172a',
+    textMuted: isDark ? 'rgba(226, 232, 240, 0.6)' : 'rgba(15, 23, 42, 0.6)',
+    label: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(15, 23, 42, 0.6)',
+    divider: isDark ? 'rgba(148, 163, 184, 0.3)' : 'rgba(15, 23, 42, 0.12)',
+    inputBg: isDark ? 'rgba(2, 6, 23, 0.35)' : '#f8fafc',
+    inputBorder: isDark ? 'rgba(148, 163, 184, 0.35)' : 'rgba(15, 23, 42, 0.2)',
+    inputBorderHover: isDark ? 'rgba(148, 163, 184, 0.6)' : 'rgba(15, 23, 42, 0.35)',
+    focus: isDark ? 'rgba(56, 189, 248, 0.7)' : 'rgba(15, 23, 42, 0.6)',
+    menuBg: isDark ? '#0f172a' : '#ffffff',
+    menuBorder: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.12)',
+    menuHover: isDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(15, 23, 42, 0.08)',
+    menuSelected: isDark ? 'rgba(56, 189, 248, 0.22)' : 'rgba(15, 23, 42, 0.12)',
+    menuSelectedHover: isDark ? 'rgba(56, 189, 248, 0.3)' : 'rgba(15, 23, 42, 0.18)',
+  };
+
+  const SectionLabel = ({ title, description }: { title: string; description?: string }) => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{ fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase', color: palette.label }}
+      >
+        {title}
+      </Typography>
+      {description ? (
+        <Typography variant="body2" sx={{ color: palette.textMuted }}>
+          {description}
+        </Typography>
+      ) : null}
+    </Box>
+  );
+
+  const SectionCard = ({ children }: { children: React.ReactNode }) => (
+    <Box
+      sx={{
+        background: palette.cardBg,
+        borderRadius: 3,
+        border: `1px solid ${palette.cardBorder}`,
+        boxShadow: palette.cardShadow,
+        px: { xs: 2, sm: 2.5 },
+        py: { xs: 2, sm: 2.5 },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: { xs: 1.5, sm: 2 },
+        color: palette.text,
+        '& .MuiTypography-root': { color: 'inherit' },
+        '& .MuiFormLabel-root': { color: palette.label },
+        '& .MuiInputLabel-root': { color: palette.label },
+        '& .MuiInputLabel-root.Mui-focused': { color: palette.label },
+        '& .MuiInputBase-root': { color: palette.text },
+        '& .MuiSelect-icon': { color: palette.label },
+        '& .MuiButton-outlined': {
+          color: palette.text,
+          borderColor: palette.inputBorder,
+        },
+        '& .MuiButton-outlinedSecondary': {
+          color: palette.text,
+          borderColor: palette.inputBorder,
+        },
+      }}
     >
       {children}
-    </Typography>
+    </Box>
   );
+
+  const selectSx = {
+    backgroundColor: palette.inputBg,
+    borderRadius: 1.5,
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: palette.inputBorder,
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: palette.inputBorderHover,
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: palette.focus,
+      boxShadow: `0 0 0 2px ${isDark ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.12)'}`,
+    },
+    '& .MuiSelect-select': {
+      paddingTop: '10px',
+      paddingBottom: '10px',
+    },
+  } as const;
+
+  const menuProps = {
+    PaperProps: {
+      sx: {
+        mt: 1,
+        borderRadius: 2,
+        backgroundColor: palette.menuBg,
+        color: palette.text,
+        border: `1px solid ${palette.menuBorder}`,
+        boxShadow: isDark ? '0 16px 40px rgba(2, 6, 23, 0.6)' : '0 16px 40px rgba(15, 23, 42, 0.12)',
+      },
+    },
+    MenuListProps: {
+      sx: {
+        py: 0.5,
+        '& .MuiMenuItem-root': {
+          borderRadius: 1,
+          mx: 0.5,
+          my: 0.25,
+          '&.Mui-selected': {
+            backgroundColor: palette.menuSelected,
+          },
+          '&.Mui-selected:hover': {
+            backgroundColor: palette.menuSelectedHover,
+          },
+          '&:hover': {
+            backgroundColor: palette.menuHover,
+          },
+        },
+      },
+    },
+  } as const;
 
   const list = () => (
     <Box
       role="presentation"
       onKeyDown={toggleDrawer(false)}
-      sx={{ width: 320, maxWidth: '100vw' }}
+      sx={{
+        width: 340,
+        maxWidth: '100vw',
+        px: { xs: 2, sm: 2.5 },
+        py: { xs: 2.5, sm: 3 },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: { xs: 2.5, sm: 3 },
+        color: palette.text,
+        '& .MuiDivider-root': { borderColor: palette.divider },
+        '& .MuiSwitch-root': { color: palette.label },
+        '& .MuiRadio-root': { color: palette.label },
+      }}
     >
-      <List sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 2.5, sm: 4 } }}>
-        <SectionLabel>全体</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
-          <Typography variant="body2" color="text.secondary">
-            {THEME_TEXT.description}
+      <Box
+        sx={{
+          borderRadius: 3,
+          p: { xs: 2, sm: 2.5 },
+          backgroundColor: palette.cardBg,
+          border: `1px solid ${palette.cardBorder}`,
+          boxShadow: palette.cardShadow,
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Typography sx={{ fontSize: 20, fontWeight: 700, letterSpacing: 0.6, color: palette.text }}>設定</Typography>
+          <Typography variant="body2" sx={{ color: palette.textMuted }}>
+            背景・表示・タイマーの見た目をまとめてカスタマイズできます。
           </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        <SectionLabel title="全体" description={THEME_TEXT.description} />
+        <SectionCard>
           <RadioGroup
             value={themeMode}
             onChange={(event) => setThemeMode(event.target.value as ThemeMode)}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mt: 0.75 }}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}
           >
-            <FormControlLabel
-              value="dark"
-              control={<Radio size="small" />}
-              label={THEME_TEXT.dark}
-              />
-            <FormControlLabel
-              value="light"
-              control={<Radio size="small" />}
-              label={THEME_TEXT.light}
-            />
+            <FormControlLabel value="dark" control={<Radio size="small" />} label={THEME_TEXT.dark} />
+            <FormControlLabel value="light" control={<Radio size="small" />} label={THEME_TEXT.light} />
           </RadioGroup>
+          <Divider sx={{ borderColor: palette.divider }} />
           <FormControlLabel
             control={
               <Switch
@@ -211,7 +342,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             label="背景の色を表示"
           />
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: palette.textMuted }}>
               文字色
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -221,66 +352,85 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
                 aria-label="文字色を選択"
                 value={textColor || (themeMode === 'dark' ? '#ececec' : '#111827')}
                 onChange={(event) => setTextColor(event.target.value)}
-                sx={{ width: 48, height: 32, border: 'none', padding: 0, background: 'transparent', cursor: 'pointer' }}
+                sx={{
+                  width: 54,
+                  height: 34,
+                  border: `1px solid ${palette.inputBorder}`,
+                  padding: 0,
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                }}
               />
               <Button variant="text" size="small" onClick={() => setTextColor('')}>
                 デフォルトに戻す
               </Button>
             </Box>
           </Box>
-        </ListItem>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="interval-select">背景画像の切替間隔</InputLabel>
-            <NativeSelect
-              defaultValue={intervalTime.state || DEFAULT_FETCH_INTERVAL}
-              inputProps={{ name: "interval time", id: "interval-select" }}
+        </SectionCard>
+
+        <SectionLabel title="操作" description="画像更新やカーソルの非表示時間を調整します。" />
+        <SectionCard>
+          <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel id="interval-select-label">背景画像の切替間隔</InputLabel>
+            <Select
+              labelId="interval-select-label"
+              id="interval-select"
+              value={intervalTime.state || DEFAULT_FETCH_INTERVAL}
+              label="背景画像の切替間隔"
               onChange={intervalTime.handler}
-              sx={{ pr: 2.5 }}
+              MenuProps={menuProps}
+              sx={selectSx}
             >
               {INTERVAL_TIME.map((time) => (
-                <option key={time.value} value={time.value}>
+                <MenuItem key={time.value} value={time.value}>
                   {time.label}
-                </option>
+                </MenuItem>
               ))}
-            </NativeSelect>
+            </Select>
           </FormControl>
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="cursor-hide-select">カーソル非表示までの秒数</InputLabel>
-            <NativeSelect
+          <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel id="cursor-hide-select-label">カーソル非表示までの秒数</InputLabel>
+            <Select
+              labelId="cursor-hide-select-label"
+              id="cursor-hide-select"
               value={cursorHideSeconds}
+              label="カーソル非表示までの秒数"
               onChange={(event) => setCursorHideSeconds(Number(event.target.value) || 3)}
-              inputProps={{ name: "cursor hide seconds", id: "cursor-hide-select" }}
-              sx={{ pr: 2.5 }}
+              MenuProps={menuProps}
+              sx={selectSx}
             >
               {CURSOR_SECONDS_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
+                <MenuItem key={item.value} value={item.value}>
                   {item.label}
-                </option>
+                </MenuItem>
               ))}
-            </NativeSelect>
+            </Select>
           </FormControl>
-        </ListItem>
-        <Divider sx={{ my: 2 }} />
-        <SectionLabel>画像</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1.5, sm: 2 } }}>
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="background-type-select">背景タイプ</InputLabel>
-            <NativeSelect
+        </SectionCard>
+
+        <SectionLabel title="画像" description="壁紙や単色背景の設定を行います。" />
+        <SectionCard>
+          <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel id="background-type-select-label">背景タイプ</InputLabel>
+            <Select
+              labelId="background-type-select-label"
+              id="background-type-select"
               value={backgroundType}
+              label="背景タイプ"
               onChange={(event) => setBackgroundType(event.target.value as BackgroundType)}
-              inputProps={{ name: "background type", id: "background-type-select" }}
-              sx={{ pr: 2.5 }}
+              MenuProps={menuProps}
+              sx={selectSx}
             >
               {BACKGROUND_TYPE_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
+                <MenuItem key={item.value} value={item.value}>
                   {item.label}
-                </option>
+                </MenuItem>
               ))}
-            </NativeSelect>
+            </Select>
           </FormControl>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: palette.textMuted }}>
               単色の背景色
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, opacity: backgroundType === 'solid' ? 1 : 0.5 }}>
@@ -291,7 +441,15 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
                 value={backgroundColor || '#ffffff'}
                 onChange={(event) => setBackgroundColor(event.target.value)}
                 disabled={backgroundType !== 'solid'}
-                sx={{ width: 48, height: 32, border: 'none', padding: 0, background: 'transparent', cursor: 'pointer' }}
+                sx={{
+                  width: 54,
+                  height: 34,
+                  border: `1px solid ${palette.inputBorder}`,
+                  padding: 0,
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                }}
               />
               <Button variant="text" size="small" onClick={() => setBackgroundColor('#ffffff')} disabled={backgroundType !== 'solid'}>
                 白に戻す
@@ -299,7 +457,12 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
             </Box>
           </Box>
           <Stack spacing={1} width="100%">
-            <Button variant="outlined" startIcon={<PhotoIcon />} onClick={() => fileInputRef.current?.click()}>
+            <Button
+              variant="outlined"
+              startIcon={<PhotoIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              sx={{ borderStyle: 'dashed', borderWidth: 1.5 }}
+            >
               画像をアップロード
             </Button>
             <input
@@ -324,29 +487,34 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               Unsplashに戻す
             </Button>
           </Stack>
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="unsplash-query-select">Unsplashカテゴリ</InputLabel>
-            <NativeSelect
+          <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel id="unsplash-query-select-label">Unsplashカテゴリ</InputLabel>
+            <Select
+              labelId="unsplash-query-select-label"
+              id="unsplash-query-select"
               value={query}
+              label="Unsplashカテゴリ"
               onChange={(event) => changeQuery(event.target.value)}
-              inputProps={{ name: "unsplash query", id: "unsplash-query-select" }}
-              sx={{ pr: 2.5 }}
+              MenuProps={menuProps}
+              sx={selectSx}
             >
               {UNSPLASH_QUERIES.map((item) => (
-                <option key={item.value} value={item.value}>
+                <MenuItem key={item.value} value={item.value}>
                   {item.label}
-                </option>
+                </MenuItem>
               ))}
-            </NativeSelect>
+            </Select>
           </FormControl>
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box sx={{ mt: 0.5 }}>
+            <Typography variant="body2" sx={{ color: palette.textMuted }}>
               次の切替予定
             </Typography>
-            <Typography variant="body1">{nextFetchTime}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              {nextFetchTime}
+            </Typography>
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: palette.textMuted }}>
               １時間あたりのリクエスト上限回数
             </Typography>
             <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
@@ -359,47 +527,50 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
               )}
             </Stack>
           </Box>
-        </ListItem>
-        <Divider sx={{ my: 2 }} />
-        <SectionLabel>時計</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch', gap: { xs: 1, sm: 1.5 } }}>
+        </SectionCard>
+
+        <SectionLabel title="時計" description="表示フォーマットを切り替えます。" />
+        <SectionCard>
           <FormControlLabel
             control={<Switch checked={showDate} onChange={(event) => setShowDate(event.target.checked)} color="primary" />}
             label="日付を表示"
           />
-          <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="time-format-select">時刻フォーマット</InputLabel>
-            <NativeSelect
+          <FormControl variant="outlined" size="small" fullWidth>
+            <InputLabel id="time-format-select-label">時刻フォーマット</InputLabel>
+            <Select
+              labelId="time-format-select-label"
+              id="time-format-select"
               value={timeFormat}
+              label="時刻フォーマット"
               onChange={(event) => setTimeFormat(event.target.value as TimeFormat)}
-              inputProps={{ name: "time format", id: "time-format-select" }}
-              sx={{ pr: 2.5 }}
+              MenuProps={menuProps}
+              sx={selectSx}
             >
               {TIME_FORMAT_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
+                <MenuItem key={item.value} value={item.value}>
                   {item.label}
-                </option>
+                </MenuItem>
               ))}
-            </NativeSelect>
+            </Select>
           </FormControl>
-        </ListItem>
-        <Divider sx={{ my: 2 }} />
-        <SectionLabel>ポモドーロ</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        </SectionCard>
+
+        <SectionLabel title="ポモドーロ" description="コントロール表示を切り替えます。" />
+        <SectionCard>
           <FormControlLabel
             control={<Switch checked={showPomodoroControls} onChange={(event) => setShowPomodoroControls(event.target.checked)} color="primary" />}
             label="コントロールを表示"
           />
-        </ListItem>
-        <Divider sx={{ my: 2 }} />
-        <SectionLabel>タイマー</SectionLabel>
-        <ListItem sx={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        </SectionCard>
+
+        <SectionLabel title="タイマー" description="コントロール表示を切り替えます。" />
+        <SectionCard>
           <FormControlLabel
             control={<Switch checked={showTimerControls} onChange={(event) => setShowTimerControls(event.target.checked)} color="primary" />}
             label="コントロールを表示"
           />
-        </ListItem>
-      </List>
+        </SectionCard>
+      </Box>
     </Box>
   );
 
@@ -432,6 +603,13 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
         open={drawerState}
         onClose={toggleDrawer(false)}
         onOpen={toggleDrawer()}
+        PaperProps={{
+          sx: {
+            backgroundColor: palette.drawerBg,
+            borderRight: `1px solid ${palette.drawerBorder}`,
+            fontFamily: "'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif",
+          },
+        }}
       >
         {list()}
       </SwipeableDrawer>

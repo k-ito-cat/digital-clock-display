@@ -3,6 +3,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import React from 'react';
 import '~/styles/autoHide.css';
+import { useClockSettings } from '~/context/ClockSettingsContext';
 
 type TopTabsProps = {
   value: 'clock' | 'pomodoro' | 'timer';
@@ -10,6 +11,18 @@ type TopTabsProps = {
 };
 
 export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
+  const { themeMode } = useClockSettings();
+  const isDark = themeMode === 'dark';
+
+  const palette = {
+    bg: isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)',
+    border: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(15, 23, 42, 0.08)',
+    text: isDark ? 'rgba(226, 232, 240, 0.7)' : 'rgba(15, 23, 42, 0.6)',
+    textActive: isDark ? '#f8fafc' : '#0f172a',
+    hover: isDark ? 'rgba(148, 163, 184, 0.16)' : 'rgba(15, 23, 42, 0.06)',
+    active: isDark ? 'rgba(148, 163, 184, 0.22)' : 'rgba(15, 23, 42, 0.08)',
+  };
+
   const handleChange = (_e: React.SyntheticEvent, newValue: string) => {
     onChange(newValue as 'clock' | 'pomodoro' | 'timer');
   };
@@ -22,9 +35,10 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
         top: { xs: 16, sm: 24 },
         left: '50%',
         transform: 'translateX(-50%)',
-        backgroundColor: 'rgba(255,255,255,0.9)',
+        backgroundColor: palette.bg,
         borderRadius: 9999,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+        border: `1px solid ${palette.border}`,
+        boxShadow: isDark ? '0 10px 24px rgba(2, 6, 23, 0.35)' : '0 10px 24px rgba(15, 23, 42, 0.08)',
         width: { xs: 'max-content', sm: 'auto' },
       }}
     >
@@ -50,18 +64,17 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
             minHeight: 0,
             minWidth: 0,
             padding: { xs: '6px 12px', sm: '8px 16px' },
-            color: '#374151',
+            color: palette.text,
             textTransform: 'none',
             fontWeight: value === 'clock' ? 700 : 500,
             borderRadius: 9999,
-            transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
+            transition: 'background-color 160ms ease, color 160ms ease',
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.95)',
+              backgroundColor: palette.hover,
             },
             '&[aria-selected="true"]': {
-              backgroundColor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              color: '#111827',
+              backgroundColor: palette.active,
+              color: palette.textActive,
             },
           }}
         />
@@ -73,18 +86,17 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
             minHeight: 0,
             minWidth: 0,
             padding: { xs: '6px 12px', sm: '8px 16px' },
-            color: '#374151',
+            color: palette.text,
             textTransform: 'none',
             fontWeight: value === 'pomodoro' ? 700 : 500,
             borderRadius: 9999,
-            transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
+            transition: 'background-color 160ms ease, color 160ms ease',
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.95)',
+              backgroundColor: palette.hover,
             },
             '&[aria-selected="true"]': {
-              backgroundColor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              color: '#111827',
+              backgroundColor: palette.active,
+              color: palette.textActive,
             },
           }}
         />
@@ -96,18 +108,17 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
             minHeight: 0,
             minWidth: 0,
             padding: { xs: '6px 12px', sm: '8px 16px' },
-            color: 'var(--tab-fg, #374151)',
+            color: palette.text,
             textTransform: 'none',
             fontWeight: value === 'timer' ? 700 : 500,
             borderRadius: 9999,
-            transition: 'background-color 160ms ease, box-shadow 160ms ease, color 160ms ease',
+            transition: 'background-color 160ms ease, color 160ms ease',
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.95)',
+              backgroundColor: palette.hover,
             },
             '&[aria-selected="true"]': {
-              backgroundColor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              color: '#111827',
+              backgroundColor: palette.active,
+              color: palette.textActive,
             },
           }}
         />
@@ -115,5 +126,4 @@ export const TopTabs: React.FC<TopTabsProps> = ({ value, onChange }) => {
     </Box>
   );
 };
-
 

@@ -113,8 +113,8 @@ export const CircularTimer = () => {
   return (
     <div
       className={clsx(
-        'surface-secondary mx-3 w-full max-w-[420px] select-none rounded-3xl px-4 py-5 shadow-lg backdrop-blur-sm sm:mx-8 sm:px-5 sm:py-6',
-        !surfaceBackgroundEnabled && 'surface-background-off'
+        'panel-surface mx-3 w-full max-w-[420px] select-none rounded-2xl px-4 py-5 sm:mx-8 sm:px-6 sm:py-6',
+        !surfaceBackgroundEnabled && 'panel-background-off'
       )}
     >
       <div className="mb-5 flex justify-center sm:mb-6">
@@ -122,11 +122,11 @@ export const CircularTimer = () => {
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: `conic-gradient(rgba(255, 255, 255, 0.95) 0% ${percent}%, rgba(255,255,255,0.25) ${percent}% 100%)`,
+              background: `conic-gradient(var(--panel-ring-strong) 0% ${percent}%, var(--panel-ring-weak) ${percent}% 100%)`,
             }}
           />
-          <div className="surface-contrast absolute inset-[6px] sm:inset-[22px] rounded-full shadow">
-            <div className="flex h-full w-full items-center justify-center rounded-full text-center text-[32px] font-semibold text-force-light sm:text-[52px]">
+          <div className="panel-contrast absolute inset-[10px] sm:inset-[26px] rounded-full">
+            <div className="flex h-full w-full items-center justify-center rounded-full text-center text-[32px] font-semibold text-theme-primary sm:text-[52px]">
               {formatTimer(remainingSeconds)}
             </div>
           </div>
@@ -141,5 +141,4 @@ export const CircularTimer = () => {
     </div>
   );
 };
-
 

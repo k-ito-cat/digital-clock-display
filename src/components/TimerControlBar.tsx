@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { ReactNode } from 'react';
 import { useClockSettings } from '~/context/ClockSettingsContext';
+import { AppTooltip } from '~/components/AppTooltip';
 
 type SelectOption = {
   value: string | number;
@@ -42,8 +43,8 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
   return (
     <div
       className={clsx(
-        'surface-secondary w-full max-w-[420px] select-none rounded-3xl px-2.5 py-2.5 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3',
-        !surfaceBackgroundEnabled && 'surface-background-off',
+        'panel-contrast w-full max-w-[420px] select-none rounded-2xl px-3 py-3 sm:px-4 sm:py-3',
+        !surfaceBackgroundEnabled && 'panel-background-off',
         className,
       )}
     >
@@ -77,22 +78,22 @@ export const TimerControlBar = ({ selects, actions, className }: TimerControlBar
         </div>
         <div className="mt-1.5 flex items-center justify-end gap-2 sm:mt-0">
           {actions.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              onClick={action.onClick}
-              disabled={action.disabled}
-              aria-label={action.ariaLabel}
-              title={action.title ?? action.ariaLabel}
-              className="btn-theme hover:shadow-lg flex h-9 w-9 items-center justify-center rounded-full text-sm transition hover:-translate-y-[1px] disabled:opacity-40 sm:h-11 sm:w-11 sm:text-base"
-            >
-              {action.icon}
-            </button>
+            <AppTooltip key={action.id} title={action.title ?? action.ariaLabel} placement="top">
+              <span className="inline-flex">
+                <button
+                  type="button"
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  aria-label={action.ariaLabel}
+                  className="btn-theme hover:shadow-lg flex h-9 w-9 items-center justify-center rounded-full text-sm transition hover:-translate-y-[1px] disabled:opacity-40 sm:h-11 sm:w-11 sm:text-base"
+                >
+                  {action.icon}
+                </button>
+              </span>
+            </AppTooltip>
           ))}
         </div>
       </div>
     </div>
   );
 };
-
-

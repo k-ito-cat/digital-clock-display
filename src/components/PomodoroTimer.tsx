@@ -79,19 +79,22 @@ export const PomodoroTimer = () => {
   return (
     <div
       className={clsx(
-        'surface-secondary mx-3 w-full select-none max-w-[420px] rounded-3xl px-4 py-5 shadow-lg backdrop-blur-sm sm:mx-8 sm:px-5 sm:py-6',
-        !surfaceBackgroundEnabled && 'surface-background-off'
+        'panel-surface mx-3 w-full max-w-[420px] select-none rounded-2xl px-4 py-5 sm:mx-8 sm:px-6 sm:py-6',
+        !surfaceBackgroundEnabled && 'panel-background-off'
       )}
     >
       <div className="mb-3 flex justify-center sm:mb-4">
         {(() => {
           const progress = Math.max(0, Math.min(1, totalSets ? currentSet / totalSets : 0));
           const percent = Math.round(progress * 100);
-          const ring = `conic-gradient(rgba(255,255,255,0.95) 0% ${percent}%, rgba(255,255,255,0.25) ${percent}% 100%)`;
+          const ring = `conic-gradient(var(--panel-ring-strong) 0% ${percent}%, var(--panel-ring-weak) ${percent}% 100%)`;
           return (
             <div className="relative h-11 w-11 sm:h-14 sm:w-14">
-              <div className="absolute inset-0 rounded-full border-[3px] border-theme" style={{ background: ring }} />
-              <div className="surface-contrast absolute inset-[3px] sm:inset-1 flex items-center justify-center rounded-full text-xs font-semibold text-force-light shadow sm:text-sm">
+              <div
+                className="absolute inset-0 rounded-full border-[2px]"
+                style={{ background: ring, borderColor: 'var(--panel-border)' }}
+              />
+              <div className="panel-contrast absolute inset-[4px] sm:inset-1 flex items-center justify-center rounded-full text-xs font-semibold text-theme-primary sm:text-sm">
                 {currentSet}/{totalSets}
               </div>
             </div>
@@ -112,5 +115,4 @@ export const PomodoroTimer = () => {
     </div>
   );
 };
-
 
