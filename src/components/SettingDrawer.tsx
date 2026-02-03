@@ -140,7 +140,7 @@ export const SettingDrawer = memo(({ limit, renderTrigger }: SettingDrawerProps)
   };
 
   const handleDrawerClose = (_event: unknown, reason?: 'backdropClick' | 'escapeKeyDown') => {
-    if (reason === 'escapeKeyDown') {
+    if (reason === 'escapeKeyDown' || reason === 'backdropClick') {
       handleClose();
     }
   };
