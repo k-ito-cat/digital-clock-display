@@ -1,6 +1,6 @@
 # digital-clock-display
 
-<img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/18c85ae7-2686-4141-a593-215931a9cc21" />
+<img width="1919" height="991" alt="スクリーンショット 2026-02-03 203927" src="https://github.com/user-attachments/assets/72700476-9569-426f-ad72-fc07e367bb83" />
 
 ## 使用技術
 
