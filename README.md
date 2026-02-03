@@ -1,6 +1,18 @@
 # digital-clock-display
 
+## Web
+
 <img width="1919" height="991" alt="スクリーンショット 2026-02-03 203927" src="https://github.com/user-attachments/assets/72700476-9569-426f-ad72-fc07e367bb83" />
+
+
+## Notion
+
+埋め込みすることでウィジェットとして利用が可能。
+
+Webで可能な文字色や背景の変更やサイズ変更などのほか、表示サイズ調整も自由。
+
+<img width="1670" height="1040" alt="スクリーンショット 2026-02-03 204810" src="https://github.com/user-attachments/assets/ebdd6034-1706-422f-9c27-5c7dd150bcf9" />
+
 
 ## 使用技術
 
