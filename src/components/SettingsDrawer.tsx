@@ -225,7 +225,7 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                     type="range"
                     aria-label="文字サイズ"
                     min={0.5}
-                    max={1.4}
+                    max={2.8}
                     step={0.05}
                     value={settings.scale}
                     onChange={(event) => update({ scale: Number(event.target.value) })}

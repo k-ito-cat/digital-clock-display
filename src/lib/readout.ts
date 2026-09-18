@@ -17,9 +17,9 @@ export const estimateWidthEm = (text: string) =>
   }, 0);
 
 /** 面の幅のうち主表示が占める割合 */
-const FILL_RATIO = 88;
+const FILL_RATIO = 44;
 /** 面の高さに対する上限。副次情報と操作の場所を残す */
-const HEIGHT_CAP_CQB = 38;
+const HEIGHT_CAP_CQB = 19;
 
 /**
  * 画面ごとに桁数が違うと、画面を移るたびに主表示の大きさが跳ねる。
@@ -28,7 +28,7 @@ const HEIGHT_CAP_CQB = 38;
 export const readoutFontSize = (text: string, scale: number, reference = text) => {
   const widthEm = Math.max(estimateWidthEm(text), estimateWidthEm(reference), 1);
   const byWidth = FILL_RATIO / widthEm;
-  return `calc(clamp(1.25rem, min(${byWidth.toFixed(1)}cqi, ${HEIGHT_CAP_CQB}cqb), 32rem) * ${scale})`;
+  return `calc(clamp(0.625rem, min(${byWidth.toFixed(1)}cqi, ${HEIGHT_CAP_CQB}cqb), 16rem) * ${scale})`;
 };
 
 /** 画面をまたいで共有する基準。時計の書式から決める */

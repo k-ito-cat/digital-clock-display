@@ -512,6 +512,48 @@
     scale: 1;
   }
 
+  /*
+   * 内側でスクロールする領域。埋め込みのような狭い面では必ず出るため、
+   * 地の主張を抑える。太さを細くし、つまみだけを境界色で示す。
+   */
+  .scroll-quiet,
+  .session-inline,
+  .settings-body,
+  .session-sheet-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-subtle) transparent;
+  }
+
+  .scroll-quiet::-webkit-scrollbar,
+  .session-inline::-webkit-scrollbar,
+  .settings-body::-webkit-scrollbar,
+  .session-sheet-body::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-quiet::-webkit-scrollbar-track,
+  .session-inline::-webkit-scrollbar-track,
+  .settings-body::-webkit-scrollbar-track,
+  .session-sheet-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-quiet::-webkit-scrollbar-thumb,
+  .session-inline::-webkit-scrollbar-thumb,
+  .settings-body::-webkit-scrollbar-thumb,
+  .session-sheet-body::-webkit-scrollbar-thumb {
+    border-radius: var(--radius-capsule);
+    background: var(--color-border-subtle);
+  }
+
+  .scroll-quiet:hover::-webkit-scrollbar-thumb,
+  .session-inline:hover::-webkit-scrollbar-thumb,
+  .settings-body:hover::-webkit-scrollbar-thumb,
+  .session-sheet-body:hover::-webkit-scrollbar-thumb {
+    background: var(--color-fg-secondary);
+  }
+
   .session-inline {
     max-height: max(100px, calc(100cqb - 38cqb - var(--size-hit) * 2 - var(--spacing-edge) * 2 - 96px));
     overflow-y: auto;

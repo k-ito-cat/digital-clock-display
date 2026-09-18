@@ -150,7 +150,7 @@ export const AdjustPanel = ({ variant, bounds, onSwitch, onExit }: Props) => {
         type="range"
         aria-label="文字サイズ"
         min={0.5}
-        max={1.4}
+        max={2.8}
         step={0.05}
         value={settings.scale}
         onChange={(event) => update({ scale: Number(event.target.value) })}
@@ -238,7 +238,7 @@ export const AdjustPanel = ({ variant, bounds, onSwitch, onExit }: Props) => {
         </div>
       ) : (
         <div
-          className="grid max-h-[min(46cqb,420px)] gap-[var(--spacing-group)] overflow-y-auto"
+          className="scroll-quiet grid max-h-[min(46cqb,420px)] gap-[var(--spacing-group)] overflow-y-auto"
           style={{ touchAction: 'pan-y' }}
         >
           <div className="flex items-center justify-between gap-[var(--spacing-stack)]">
