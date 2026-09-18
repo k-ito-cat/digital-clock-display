@@ -10,18 +10,24 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'touch-icon.png'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
+        // id を固定する。将来 start_url を変えても同じアプリとして扱わせるため
+        id: '/',
         name: 'Digital Clock Display',
         short_name: 'Digital Clock',
+        lang: 'ja',
+        dir: 'ltr',
         theme_color: '#0b0d10',
         background_color: '#0b0d10',
         display: 'standalone',
         start_url: '/',
+        // maskable はセーフゾーンを取った専用画像にする。通常のアイコンを流用しない
         icons: [
           { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
-          { src: '/touch-icon.png', sizes: '192x192', type: 'image/png' },
-          { src: '/touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any maskable' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),
