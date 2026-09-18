@@ -1,18 +1,20 @@
-import Layout from "./layouts/Layout";
-import ClockPage from "./pages/ClockPage";
-import { ClockSettingsProvider } from "./context/ClockSettingsContext";
-import { TimerProvider } from "./context/TimerContext";
+import { Shell } from '~/components/Shell';
+import { AlertWatcher } from '~/store/alerts';
+import { BackgroundProvider } from '~/store/background';
+import { NoticeProvider } from '~/store/notices';
+import { SettingsProvider } from '~/store/settings';
+import { TimersProvider } from '~/store/timers';
 
-function App() {
-  return (
-    <ClockSettingsProvider>
-      <TimerProvider>
-        <Layout>
-          <ClockPage />
-        </Layout>
-      </TimerProvider>
-    </ClockSettingsProvider>
-  );
-}
-
-export default App;
+export const App = () => (
+  <NoticeProvider>
+    <SettingsProvider>
+      <BackgroundProvider>
+        <TimersProvider>
+          <AlertWatcher>
+            <Shell />
+          </AlertWatcher>
+        </TimersProvider>
+      </BackgroundProvider>
+    </SettingsProvider>
+  </NoticeProvider>
+);

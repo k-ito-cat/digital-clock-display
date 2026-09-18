@@ -1,0 +1,919 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #0b0d10;
+    color: var(--color-fg-primary);
+    font-family: system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /*
+   * hig: focus.ring
+   * 背景が利用者の選んだ画像でも視認できるよう、明暗2重のリングにする。
+   */
+  :where(button, input, select, a, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-focus-inner);
+    outline-offset: 0;
+    box-shadow: 0 0 0 4px var(--color-focus-outer);
+    border-radius: var(--radius-control);
+  }
+}
+
+@layer components {
+  /* hig: copy.fixed-width-digits */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /*
+   * 背景画像の上で読ませるための処理。面を敷いて区画を作るのではなく、
+   * 文字の周りだけを処理する。docs/design/foundations.md の色を参照。
+   */
+  [data-legibility='shadow'] .readout-group {
+    text-shadow:
+      0 1px 2px rgb(0 0 0 / 0.45),
+      0 0 18px rgb(0 0 0 / 0.35);
+  }
+
+  [data-theme='light'][data-legibility='shadow'] .readout-group {
+    text-shadow:
+      0 1px 2px rgb(255 255 255 / 0.55),
+      0 0 18px rgb(255 255 255 / 0.45);
+  }
+
+  /*
+   * 主表示のまとまりの中に、自分の面を持つ部品（プリセットのカプセル）が入ることがある。
+   * その場合は可読性処理を .readout-core に絞り、面が二重に重ならないようにする。
+   */
+  [data-legibility='scrim'] .readout-group:not(:has(.readout-core)),
+  [data-legibility='scrim'] .readout-core {
+    position: relative;
+    isolation: isolate;
+  }
+
+  [data-legibility='scrim'] .readout-group:not(:has(.readout-core))::before,
+  [data-legibility='scrim'] .readout-core::before {
+    content: '';
+    position: absolute;
+    inset: -14% -10%;
+    z-index: -1;
+    background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 72%);
+  }
+
+  [data-theme='light'][data-legibility='scrim'] .readout-group:not(:has(.readout-core))::before,
+  [data-theme='light'][data-legibility='scrim'] .readout-core::before {
+    background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.72) 0%, rgb(255 255 255 / 0) 72%);
+  }
+
+  /*
+   * 旧実装の半透明の面とすりガラスを踏襲する。
+   * 平常時に面を持たない方針の例外であり、利用者が選んだ時だけ現れる。
+   */
+  [data-legibility='panel'] .readout-group:not(:has(.readout-core)),
+  [data-legibility='glass'] .readout-group:not(:has(.readout-core)),
+  [data-legibility='panel'] .readout-core,
+  [data-legibility='glass'] .readout-core {
+    padding: var(--spacing-group);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-readout);
+    box-shadow: var(--shadow-readout);
+  }
+
+  [data-legibility='glass'] .readout-group:not(:has(.readout-core)),
+  [data-legibility='glass'] .readout-core {
+    backdrop-filter: blur(18px);
+  }
+
+  .readout-core {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-stack);
+  }
+
+  /*
+   * hig: disclosure.auto-hide
+   * 画面の中に置いた操作も、グローバルな操作と同じ条件で隠す。
+   */
+  .auto-hide {
+    transition: opacity var(--motion-surface) var(--ease-out);
+  }
+
+  /*
+   * アイコンの大きさは token で決める。呼び出し側の指定に依存させない。
+   * 面が広い時に1段上がるのも、この token を通す。
+   */
+  .action svg {
+    width: var(--size-icon);
+    height: var(--size-icon);
+  }
+
+  /*
+   * ポインタを載せている間は消さない。狙いを定めて止めた瞬間に消えると押せないため。
+   * 消えている間は中の操作も押せない状態にする。子が pointer-events を持つため、明示的に打ち消す。
+   */
+  [data-idle='true'] .auto-hide:not(:hover):not(:focus-within) {
+    opacity: 0;
+  }
+
+  [data-idle='true'] .auto-hide:not(:hover):not(:focus-within),
+  [data-idle='true'] .auto-hide:not(:hover):not(:focus-within) * {
+    pointer-events: none;
+  }
+
+  /*
+   * 歯車に重ねた団子状の呼び出し。
+   * 細かいポインタではホバーとフォーカスで下から現れ、粗いポインタでは最初から並べる。
+   * ホバーを前提にすると、タッチでは到達できなくなるため。
+   */
+  .stack-item {
+    opacity: 0;
+    translate: 0 8px;
+    pointer-events: none;
+  }
+
+  .stack:not([data-dismissed]):hover .stack-item,
+  .stack:not([data-dismissed]):focus-within .stack-item,
+  .stack:not([data-dismissed])[data-open='true'] .stack-item {
+    opacity: 1;
+    translate: 0 0;
+    pointer-events: auto;
+  }
+
+  /* 歯車に近いものから順に現れる */
+  .stack-item:nth-last-child(1) {
+    transition-delay: 0ms;
+  }
+  .stack-item:nth-last-child(2) {
+    transition-delay: 50ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stack-item {
+      transition-delay: 0ms;
+    }
+  }
+}
+
+@layer utilities {
+  /*
+   * 背景画像の上に浮く操作の群。
+   * 主表示には可読性処理を用意しているが、タブには地が無く、写真の上で文字が読めない。
+   * 群としてのまとまりを示すためカプセルの形にし、背景をぼかして文字を読ませる。
+   */
+  .control-capsule {
+    border-radius: var(--radius-capsule);
+    background: var(--color-surface-control);
+    backdrop-filter: blur(14px);
+    padding-inline: var(--spacing-inline);
+  }
+
+  /*
+   * 群から離れて単独で浮く操作。カプセルの中に入れられないため、それぞれが円の地を持つ。
+   * 塗りではなく、背景をぼかした半透明の地に留める。
+   */
+  .control-bubble {
+    background: var(--color-surface-control);
+    backdrop-filter: blur(14px);
+  }
+
+  /*
+   * 時刻の下見。大きさは主表示と同じ考え方で、この面の幅から逆算する。
+   * 桁が増えれば小さくなる。上限を設けて、設定の面で主役にならないようにする。
+   */
+  .clock-preview {
+    container-type: inline-size;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding-block: var(--spacing-inline);
+  }
+
+  .clock-preview-date {
+    font-size: var(--text-label);
+    letter-spacing: 0.16em;
+    color: var(--color-fg-secondary);
+  }
+
+  .clock-preview-time {
+    line-height: 1.1;
+    color: var(--color-fg-primary);
+  }
+
+  /*
+   * 文字色の見本。塗られているのは操作ではなく値そのもの。
+   * 選択中は前景色の枠線で示す。地が写真ではなくオーバーレイ面なので、細い枠でも読める。
+   */
+  .color-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-inline);
+  }
+
+  .color-swatch {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-control);
+    transition: border-color var(--motion-state) var(--ease-out);
+  }
+
+  .color-swatch:hover,
+  .color-swatch[aria-checked='true'] {
+    border-color: var(--color-fg-primary);
+  }
+
+  .color-swatch[aria-checked='true'] {
+    box-shadow: inset 0 0 0 1px var(--color-surface-overlay);
+  }
+
+  /*
+   * 常時表示と秒数は意味の違う区画なので、間に境界を引く。
+   * foundations の罫線の規則にある「オーバーレイ面の内部の、意味の異なる区画の境界」に当たる。
+   */
+  .autohide-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-inline);
+  }
+
+  .autohide-row input[type='range'] {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .autohide-divider {
+    align-self: stretch;
+    width: 1px;
+    min-height: var(--size-hit);
+    background: var(--color-border-subtle);
+  }
+
+  /*
+   * 隠れるまでの時間の下見。設定の中だけで動かす。
+   * 消え方は本物と同じ時間を使い、reduced-motion では即座に切り替わる。
+   */
+  .hide-preview {
+    display: grid;
+    gap: var(--spacing-inline);
+  }
+
+  .hide-preview-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-inline);
+    min-height: var(--size-hit);
+    transition: opacity var(--motion-surface) var(--ease-out);
+  }
+
+  .hide-preview-stage[data-hidden='true'] {
+    opacity: 0;
+  }
+
+  .hide-preview-ui {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-inline);
+    min-height: calc(var(--size-hit) - var(--spacing-inline));
+  }
+
+  .hide-preview-bar {
+    width: 14px;
+    height: 2px;
+    border-radius: var(--radius-marker);
+    background: var(--color-fg-secondary);
+  }
+
+  .hide-preview-cursor {
+    color: var(--color-fg-secondary);
+  }
+
+  .hide-preview-track {
+    height: 2px;
+    overflow: hidden;
+    background: var(--color-border-subtle);
+  }
+
+  .hide-preview-fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--color-fg-primary);
+    animation-name: hide-preview-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes hide-preview-progress {
+    to {
+      width: 100%;
+    }
+  }
+
+  .screen-controls {
+    bottom: max(var(--spacing-edge), env(safe-area-inset-bottom));
+  }
+
+  .global-controls {
+    right: max(var(--spacing-edge), env(safe-area-inset-right));
+    bottom: max(var(--spacing-edge), env(safe-area-inset-bottom));
+  }
+
+  .pomodoro-readout {
+    padding-block: calc(var(--spacing-edge) + var(--size-hit) + var(--spacing-stack));
+  }
+
+  .pomodoro-ready {
+    --pomodoro-time-limit: max(1.25rem, calc(100cqb - var(--spacing-edge) * 2 - var(--size-hit) * 2 - 192px));
+  }
+
+  .session-inline,
+  .session-preview {
+    width: min(76cqi, 36rem);
+    max-width: calc(100cqi - var(--spacing-edge) * 2 - var(--spacing-group) * 2);
+    font-size: var(--text-body);
+  }
+
+  /*
+   * 停止中のタイマーの直接編集。桁を上下の矢印で挟む。
+   * 桁ごとに縦に積むだけの構造にする。行をまたぐ配置にすると、
+   * 箱の位置と見た目がずれた時に、矢印を狙って桁を押してしまう。
+   * 矢印は操作UIなので、他の操作と同じ条件で自動的に消える。hig: disclosure.auto-hide
+   */
+  .duration {
+    /* 矢印1つ分の高さ。区切り文字を桁の行へ合わせるのにも使う */
+    --duration-arrow: clamp(var(--size-hit), 0.3em, 64px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    /* 字形の外側の余白を詰める。広いと、矢印のすぐ下まで桁の当たり判定が伸びる */
+    line-height: 0.78;
+  }
+
+  .duration-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 区切り文字は桁の行に置く。上の矢印1つ分だけ下げる */
+  .duration-sep {
+    margin-top: var(--duration-arrow);
+  }
+
+  .duration-step {
+    display: flex;
+    /* 桁の箱と重なっても、矢印を狙った操作が桁に取られないようにする */
+    position: relative;
+    z-index: 1;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: clamp(var(--size-hit), 0.6em, 112px);
+    height: var(--duration-arrow);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-fg-secondary);
+    transition:
+      color var(--motion-state) var(--ease-out),
+      opacity var(--motion-surface) var(--ease-out);
+  }
+
+  .duration-step:hover,
+  .duration-step:focus-visible {
+    color: var(--color-fg-primary);
+  }
+
+  .duration-step:disabled {
+    opacity: var(--opacity-disabled);
+  }
+
+  /* 矢印の大きさは桁に連動させる。ただし小さすぎ・大きすぎにしない */
+  .duration-step svg {
+    display: block;
+    width: clamp(16px, 0.3em, 36px);
+    height: auto;
+  }
+
+  /*
+   * どちらが反応するかを、載せた時点で分かるようにする。
+   * 矢印は色が上がり、桁は太さを固定した下線が出る。hig: pointer.editable-affordance
+   */
+  .duration-digits {
+    display: block;
+    padding: 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    transition: border-color var(--motion-state) var(--ease-out);
+  }
+
+  .duration-digits:hover,
+  .duration-digits:focus-visible {
+    border-bottom-color: var(--color-fg-primary);
+  }
+
+  .duration-label {
+    font-size: var(--text-label);
+    line-height: 1;
+    color: var(--color-fg-secondary);
+  }
+
+  /*
+   * よく使う長さ。主表示の直下に置く独立した面。
+   * foundations の装飾の例外「まとまりとして読ませる必要がある群」に当たる。
+   * 主表示の可読性処理と重ならないよう、間に space.group をあける。
+   */
+  .preset-slider {
+    --preset-item: 4.5rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-tight);
+    max-width: 100%;
+    margin-top: calc(var(--spacing-group) - var(--spacing-stack));
+    padding: var(--spacing-tight);
+    border-radius: var(--radius-capsule);
+    background: var(--color-surface-control);
+    backdrop-filter: blur(14px);
+  }
+
+  .preset-track {
+    position: relative;
+    display: flex;
+    width: calc(var(--preset-item) * 3);
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    touch-action: pan-x;
+    /* 環が続いていることを、端をぼかして示す */
+    mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+  }
+
+  .preset-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .preset-item {
+    flex: 0 0 var(--preset-item);
+    display: grid;
+    place-items: center;
+    scroll-snap-align: center;
+    padding-block: 2px;
+    color: var(--color-fg-secondary);
+    font-size: var(--text-body);
+    white-space: nowrap;
+    cursor: pointer;
+    /* hig: pointer.no-text-selection */
+    user-select: none;
+    transition:
+      color var(--motion-state) var(--ease-out),
+      scale var(--motion-state) var(--ease-out);
+  }
+
+  /* 中央にあるものが設定値。太字とわずかな拡大で、選ばれていることを示す */
+  .preset-item[data-center='true'] {
+    color: var(--color-fg-primary);
+    font-weight: 600;
+    scale: 1.12;
+  }
+
+  /* 直接編集で値がプリセットから外れた間は、設定中の印だけを外す */
+  .preset-slider[data-unset='true'] .preset-item[data-center='true'] {
+    font-weight: inherit;
+    scale: 1;
+  }
+
+  .session-inline {
+    max-height: max(100px, calc(100cqb - 38cqb - var(--size-hit) * 2 - var(--spacing-edge) * 2 - 96px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-tight);
+    touch-action: pan-y;
+  }
+
+  .session-preview,
+  .session-trigger {
+    display: none;
+  }
+
+  .session-status {
+    display: block;
+  }
+
+  .session-editor,
+  .session-plan {
+    display: grid;
+    gap: var(--spacing-stack);
+    min-width: 0;
+  }
+
+  .session-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-inline);
+    color: var(--color-fg-secondary);
+    font-size: var(--text-label);
+  }
+
+  .session-timeline {
+    display: flex;
+    gap: var(--spacing-inline);
+  }
+
+  .session-cycle {
+    flex-basis: 0;
+    min-width: 0;
+    display: grid;
+    gap: var(--spacing-tight);
+  }
+
+  .session-cycle-track {
+    display: flex;
+    align-items: center;
+    height: var(--spacing-stack);
+    gap: 2px;
+  }
+
+  .session-block {
+    position: relative;
+    flex-basis: 0;
+    min-width: 0;
+    height: var(--spacing-inline);
+    background: color-mix(in srgb, var(--color-fg-primary) 68%, transparent);
+    border-radius: var(--radius-marker);
+  }
+
+  .session-block[data-kind='shortBreak'],
+  .session-swatch[data-kind='shortBreak'] {
+    background: color-mix(in srgb, var(--color-fg-primary) 25%, transparent);
+  }
+
+  .session-block[data-kind='longBreak'],
+  .session-swatch[data-kind='longBreak'] {
+    background: transparent;
+    border: 1px solid var(--color-fg-secondary);
+  }
+
+  .session-block[data-selected] {
+    outline: 1px solid var(--color-fg-primary);
+    outline-offset: 2px;
+  }
+
+  .session-block[data-state='complete'] {
+    opacity: 0.4;
+  }
+  .session-block[data-state='current']::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + var(--spacing-tight));
+    border: 3px solid transparent;
+    border-top-color: var(--color-fg-primary);
+  }
+  .session-block-progress {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--color-fg-primary);
+    border-radius: inherit;
+  }
+
+  .session-cycle-number {
+    color: var(--color-fg-secondary);
+    font-size: var(--text-label);
+  }
+
+  .session-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-inline);
+  }
+
+  .session-kind {
+    gap: var(--spacing-inline);
+    padding-inline: var(--spacing-inline);
+    border: 1px solid transparent;
+  }
+
+  .session-kind[aria-pressed='true'] {
+    border-color: var(--color-border-subtle);
+  }
+
+  .session-swatch {
+    width: var(--spacing-inline);
+    height: var(--spacing-inline);
+    background: var(--color-fg-secondary);
+    border-radius: var(--radius-marker);
+  }
+
+  .session-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--spacing-tight) var(--spacing-group);
+  }
+
+  .session-field,
+  .session-stepper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-tight);
+    min-height: var(--size-hit);
+  }
+
+  .session-field {
+    justify-content: space-between;
+  }
+
+  .session-value {
+    min-width: 6ch;
+    text-align: center;
+  }
+
+  .modal-surface {
+    position: fixed;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    overflow: hidden;
+    border: 0;
+    color: var(--color-fg-primary);
+    background: var(--color-surface-overlay);
+    font-size: var(--text-body);
+  }
+
+  .modal-surface::backdrop {
+    background: rgb(0 0 0 / 0.4);
+    animation: session-backdrop-in var(--motion-surface) var(--ease-out) both;
+  }
+
+  .modal-surface[data-closing]::backdrop {
+    animation: session-backdrop-out var(--motion-surface) var(--ease-out) both;
+  }
+
+  .settings-sheet {
+    --surface-from: translateX(calc(-1 * var(--spacing-group)));
+    inset: 0 auto 0 0;
+    width: min(360px, 90vw);
+    height: 100%;
+    max-height: 100dvh;
+    border-right: 1px solid var(--color-border-subtle);
+  }
+
+  .session-sheet {
+    --surface-from: translateY(var(--spacing-group));
+    inset: auto 0 0;
+    width: 100%;
+    max-height: 80dvh;
+    border-top: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+  }
+
+  /* 取り返しのつかない操作の確認。面の中央に小さく出す */
+  .confirm-sheet {
+    --surface-from: translateY(var(--spacing-stack));
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+    width: min(320px, calc(100vw - var(--spacing-group) * 2));
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-control);
+  }
+
+  .confirm-sheet-content {
+    display: grid;
+    gap: var(--spacing-stack);
+    padding: var(--spacing-group);
+  }
+
+  .settings-content,
+  .session-sheet-content {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+    height: 100%;
+  }
+
+  .notices {
+    display: grid;
+    gap: var(--spacing-inline);
+    max-width: min(70cqi, 420px);
+    pointer-events: none;
+  }
+
+  /*
+   * 通知は画面上部の中央に出す。画面タブの下に置き、常設の要素と重ねない。
+   * 左下に置くと出典の位置が通知の有無で動き、平常時の表示が落ち着かないため。
+   */
+  /*
+   * 画面に対して固定する。オーバーレイ面の中から呼んでも同じ位置に出すため。
+   * position: fixed なので top layer の中でも画面基準で並び、暗幕の下に隠れない。
+   */
+  .notices-top {
+    position: fixed;
+    top: calc(max(var(--spacing-edge), env(safe-area-inset-top)) + var(--size-hit) + var(--spacing-stack));
+    left: 50%;
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+  }
+
+  /* 上から入る。消える時は時間切れなので、入る時だけ動かす */
+  .notices > p {
+    animation: notice-in var(--motion-surface) var(--ease-out) both;
+  }
+
+  @keyframes notice-in {
+    from {
+      opacity: 0;
+      translate: 0 calc(-1 * var(--spacing-stack));
+    }
+  }
+
+  .settings-heading,
+  .session-sheet-heading {
+    flex-shrink: 0;
+    padding: var(--spacing-stack) var(--spacing-group);
+    padding-top: max(var(--spacing-stack), env(safe-area-inset-top));
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .settings-heading {
+    display: grid;
+    gap: var(--spacing-stack);
+  }
+
+  .settings-body,
+  .session-sheet-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-group);
+    padding-left: max(var(--spacing-group), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-group), env(safe-area-inset-right));
+    padding-bottom: max(var(--spacing-group), env(safe-area-inset-bottom));
+    touch-action: pan-y;
+  }
+
+  .settings-body {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-section);
+  }
+
+  .settings-body label:has(input[type='checkbox']) {
+    min-height: var(--size-hit);
+  }
+
+  .settings-clock-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-body input[type='range'] {
+    min-height: var(--size-hit);
+  }
+
+  .settings-body [role='switch'] {
+    outline-offset: 4px;
+  }
+
+  @media (pointer: coarse) {
+    .settings-sheet {
+      --surface-from: translateY(var(--spacing-group));
+      inset: auto 0 0;
+      width: 100%;
+      height: auto;
+      max-height: 80dvh;
+      border-right: 0;
+      border-top: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-control) var(--radius-control) 0 0;
+    }
+  }
+
+  .session-sheet-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-inline);
+  }
+
+  @keyframes session-backdrop-in {
+    from {
+      background: rgb(0 0 0 / 0);
+    }
+  }
+
+  @keyframes session-backdrop-out {
+    to {
+      background: rgb(0 0 0 / 0);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .pomodoro-ready {
+      --pomodoro-time-limit: 38cqb;
+    }
+    .session-inline {
+      display: none;
+    }
+    .session-preview {
+      display: block;
+    }
+    .session-trigger {
+      display: inline-flex;
+    }
+    /*
+   * 背景画像の上に浮く操作の群。
+   * 主表示には可読性処理を用意しているが、タブには地が無く、写真の上で文字が読めない。
+   * 群としてのまとまりを示すためカプセルの形にし、背景をぼかして文字を読ませる。
+   */
+    .control-capsule {
+      border-radius: var(--radius-capsule);
+      background: var(--color-surface-control);
+      backdrop-filter: blur(14px);
+      padding-inline: var(--spacing-inline);
+    }
+
+    .screen-controls {
+      bottom: calc(max(var(--spacing-edge), env(safe-area-inset-bottom)) + var(--size-hit) + var(--spacing-group));
+    }
+    .pomodoro-readout {
+      padding-bottom: calc(
+        max(var(--spacing-edge), env(safe-area-inset-bottom)) + var(--size-hit) * 2 + var(--spacing-group) +
+          var(--spacing-stack)
+      );
+    }
+    .session-sheet .session-fields {
+      grid-template-columns: 1fr;
+    }
+    .session-sheet .session-legend {
+      justify-content: flex-start;
+    }
+    @container (height < 24rem) {
+      .session-preview .session-summary,
+      .session-preview .session-cycle-number {
+        display: none;
+      }
+      .pomodoro-ready {
+        --pomodoro-time-limit: 16cqb;
+      }
+    }
+  }
+
+  @container (width < 36rem) {
+    /*
+   * 背景画像の上に浮く操作の群。
+   * 主表示には可読性処理を用意しているが、タブには地が無く、写真の上で文字が読めない。
+   * 群としてのまとまりを示すためカプセルの形にし、背景をぼかして文字を読ませる。
+   */
+    .control-capsule {
+      border-radius: var(--radius-capsule);
+      background: var(--color-surface-control);
+      backdrop-filter: blur(14px);
+      padding-inline: var(--spacing-inline);
+    }
+
+    .screen-controls {
+      bottom: calc(max(var(--spacing-edge), env(safe-area-inset-bottom)) + var(--size-hit) + var(--spacing-group));
+    }
+  }
+}
+
+@layer components {
+  /* hig: copy.no-wrap-readout */
+  .readout {
+    user-select: none;
+    -webkit-user-select: none;
+    white-space: nowrap;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--color-fg-primary);
+  }
+}

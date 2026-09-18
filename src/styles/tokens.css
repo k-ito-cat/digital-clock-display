@@ -1,0 +1,141 @@
+/*
+ * docs/design/tokens.md の実装。値の正本はこのファイルとする。
+ * 意味と使い分けは tokens.md、規則は hig.md を参照する。
+ * Picture-in-Picture は canvas 描画のため、JavaScript からもここを読む（lib/tokens.ts）。
+ */
+@theme {
+  /* Spacing: 用途名を通してのみ使う。値の直接指定はしない */
+  --spacing-tight: 4px;
+  --spacing-inline: 8px;
+  --spacing-stack: 12px;
+  --spacing-group: 24px;
+  --spacing-section: 32px;
+  /* 面の端からの余白と、操作どうしの間隔。ポインタの精度で変える */
+  --spacing-edge: 24px;
+  --spacing-action: 8px;
+
+  /* Radius: 意味ごとに3段。全丸を持たない */
+  --radius-flush: 0px;
+  --radius-marker: 2px;
+  --radius-control: 4px;
+  /* 浮いている操作の群だけに使う。カプセルの形で1つのまとまりとして示す */
+  --radius-capsule: 9999px;
+  /* 時計の背後に敷く面だけに使う。旧実装の見え方を踏襲する */
+  --radius-surface: 16px;
+
+  /* Size: ヒット領域はポインタ精度で変える */
+  --size-hit-fine: 32px;
+  --size-hit-coarse: 40px;
+  --size-icon: 16px;
+  --size-icon-strong: 20px;
+
+  /* Typography: UI は3役の固定値。面の大きさに連動させない */
+  --text-label: 11px;
+  --text-body: 13px;
+  --text-title: 15px;
+
+  /* Motion */
+  --motion-state: 120ms;
+  --motion-surface: 240ms;
+  --motion-view: 400ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Opacity */
+  --opacity-secondary: 0.64;
+  --opacity-disabled: 0.4;
+
+  /* z-index: 数値ではなく階層名から参照する */
+  --z-background: 0;
+  --z-readout: 10;
+  --z-controls: 20;
+  --z-overlay: 30;
+  --z-notice: 40;
+}
+
+/* 粗いポインタでは UI を1段上げ、ヒット領域を広げる */
+@media (pointer: coarse) {
+  :root {
+    --text-label: 12px;
+    --text-body: 14px;
+    --text-title: 16px;
+    --size-hit: var(--size-hit-coarse);
+    /* 画面が狭いので端の余白は詰め、押し間違えないよう操作どうしは離す */
+    --spacing-edge: 12px;
+    --spacing-action: 10px;
+  }
+}
+@media not (pointer: coarse) {
+  :root {
+    --size-hit: var(--size-hit-fine);
+  }
+}
+
+/*
+ * 大きな面では1段上げる。固定値のままだと、視距離の長い大きなモニタで小さすぎるため。
+ * 埋め込みや小さな窓では働かない。面の短辺が一定を超えた時だけ上げる。
+ */
+@media (min-width: 1600px) and (min-height: 900px) {
+  :root {
+    --text-label: 13px;
+    --text-body: 15px;
+    --text-title: 18px;
+    --size-hit: var(--size-hit-coarse);
+    --size-icon: 18px;
+    --size-icon-strong: 22px;
+  }
+}
+
+/*
+ * Color: アクセントは彩度を持たず、前景と同系の明度差で表す。
+ * 状態色は3つ持ち、オーバーレイ面の地色の上でだけ使う。詳細は docs/design/foundations.md の色。
+ */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-fg-primary: #ffffff;
+  --color-fg-secondary: rgb(255 255 255 / 0.64);
+  --color-accent: #ffffff;
+  --color-border-subtle: rgb(255 255 255 / 0.16);
+  --color-focus-inner: #0b0d10;
+  --color-focus-outer: #ffffff;
+  --color-surface-overlay: #14171b;
+  /* 背景の上に浮く操作の群の地。文字を読ませるために背景をぼかして薄く敷く */
+  --color-surface-control: rgb(10 12 15 / 0.32);
+
+  /* 状態色。オーバーレイ面の地色の上でだけ使う。背景画像の上では使わない */
+  --color-status-ok: #56c08d;
+  --color-status-warn: #e0b055;
+  --color-status-error: #e8705f;
+
+  /* 時計の背後に敷く面。旧実装の値を踏襲する */
+  --color-surface-readout: rgb(17 24 39 / 0.3);
+  --shadow-readout: 0 10px 24px rgb(0 0 0 / 0.35);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --color-fg-primary: #000000;
+  --color-fg-secondary: rgb(0 0 0 / 0.64);
+  --color-accent: #000000;
+  --color-border-subtle: rgb(0 0 0 / 0.16);
+  --color-focus-inner: #ffffff;
+  --color-focus-outer: #000000;
+  --color-surface-overlay: #fbfcfd;
+  --color-surface-control: rgb(255 255 255 / 0.42);
+
+  --color-status-ok: #1f7a53;
+  --color-status-warn: #8a6410;
+  --color-status-error: #b23a2a;
+
+  --color-surface-readout: rgb(255 255 255 / 0.16);
+  --shadow-readout: 0 10px 24px rgb(15 23 42 / 0.12);
+}
+
+/* reduced-motion では位置と不透明度の変化を即時に行う */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-state: 0ms;
+    --motion-surface: 0ms;
+    --motion-view: 0ms;
+  }
+}
