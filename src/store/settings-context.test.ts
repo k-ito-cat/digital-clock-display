@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { CENTER_PLACEMENT, DEFAULT_SETTINGS, isDefaultPomodoro, isDefaultSettings } from './settings-context';
+import {
+  CENTER_PLACEMENT,
+  DEFAULT_SETTINGS,
+  isDefaultPomodoro,
+  isDefaultSettings,
+  normalizeBackground,
+} from './settings-context';
+
+describe('normalizeBackground', () => {
+  it('廃止した透明を黒へ移行する', () => {
+    expect(normalizeBackground('transparent')).toBe('black');
+  });
+
+  it('未知の値は既定の画像へ戻す', () => {
+    expect(normalizeBackground('unknown')).toBe('image');
+  });
+});
 
 describe('isDefaultSettings', () => {
   it('既定のままなら真', () => {

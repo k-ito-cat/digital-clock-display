@@ -1,5 +1,7 @@
 import { useEffect, useImperativeHandle, useRef, type RefObject } from 'react';
+import { formatGoalCountdown } from '~/lib/goal';
 import { readToken } from '~/lib/tokens';
+import { getScrimAppearance } from '~/lib/scrim';
 import { formatClock, formatDuration } from '~/lib/time';
 import { useBackground } from '~/store/background-context';
 import { useSettings, type FaceId } from '~/store/settings-context';
@@ -99,7 +101,7 @@ export const PipSurface = ({ view, themeRef, handle, onUnsupported, onError }: P
       const width = imageRatio > canvasRatio ? image.width * (canvas.height / image.height) : canvas.width;
       const height = imageRatio > canvasRatio ? canvas.height : image.height * (canvas.width / image.width);
       context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
-    } else if (settings.background !== 'transparent') {
+    } else {
       context.fillStyle =
         settings.background === 'solid' ? settings.solidColor : settings.background === 'black' ? '#000000' : '#12161b';
       context.fillRect(0, 0, canvas.width, canvas.height);
@@ -112,9 +114,11 @@ export const PipSurface = ({ view, themeRef, handle, onUnsupported, onError }: P
           ? formatDuration(remaining(pomodoro))
           : formatDuration(remaining(timer));
 
+    const goal = settings.goalEnabled ? formatGoalCountdown(settings.goalName, settings.goalDate, new Date(now)) : null;
+
     const sub =
       view === 'clock'
-        ? ''
+        ? goal
         : view === 'pomodoro'
           ? `${PHASE_LABEL[phase]}  ${set}/${settings.totalSets}`
           : timer.status === 'running'
@@ -136,16 +140,19 @@ export const PipSurface = ({ view, themeRef, handle, onUnsupported, onError }: P
       context.fill();
     } else if (settings.legibility === 'scrim') {
       // DOM 側のスクリムに相当する減光を、文字の周りにだけ敷く
+      const scrim = getScrimAppearance(settings.scrimRange, settings.scrimAmount);
       const gradient = context.createRadialGradient(
         canvas.width / 2,
         canvas.height / 2,
         0,
         canvas.width / 2,
         canvas.height / 2,
-        short * 0.75,
+        short * scrim.radiusRatio,
       );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0.55)');
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      const channel = settings.theme === 'light' ? '255, 255, 255' : '0, 0, 0';
+      const opacity = settings.theme === 'light' ? scrim.lightOpacity : scrim.darkOpacity;
+      gradient.addColorStop(0, `rgba(${channel}, ${opacity})`);
+      gradient.addColorStop(1, `rgba(${channel}, 0)`);
       context.fillStyle = gradient;
       context.fillRect(0, 0, canvas.width, canvas.height);
     }

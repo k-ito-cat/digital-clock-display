@@ -1,6 +1,7 @@
 import { useCurrentTime } from '~/features/useCurrentTime';
 import { cn } from '~/lib/cn';
 import { estimateWidthEm } from '~/lib/readout';
+import { formatGoalCountdown } from '~/lib/goal';
 import { formatClock, formatDate } from '~/lib/time';
 import { useSettings } from '~/store/settings-context';
 import { FACE_CLASS } from './face-class';
@@ -17,6 +18,7 @@ export const ClockPreview = () => {
   const { settings } = useSettings();
   const now = useCurrentTime(settings.showSeconds);
   const time = formatClock(now, { showSeconds: settings.showSeconds, hour12: settings.hour12 });
+  const goal = settings.goalEnabled ? formatGoalCountdown(settings.goalName, settings.goalDate, now) : null;
   const size = `min(${(FILL_RATIO / Math.max(estimateWidthEm(time), 1)).toFixed(1)}cqi, 2.5rem)`;
 
   return (
@@ -27,6 +29,7 @@ export const ClockPreview = () => {
       <span className={cn('clock-preview-time tabular', FACE_CLASS[settings.face])} style={{ fontSize: size }}>
         {time}
       </span>
+      {goal ? <span className="clock-preview-goal">{goal}</span> : null}
     </div>
   );
 };

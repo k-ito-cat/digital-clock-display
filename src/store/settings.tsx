@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { clampRefreshIntervalMs } from '~/lib/background';
 import { readJson, writeJson } from '~/lib/storage';
+import { clampScrimValue } from '~/lib/scrim';
 import { useNotices } from './notices-context';
 import {
   clampPlacement,
   DEFAULT_SETTINGS,
+  normalizeBackground,
   SETTINGS_STORAGE_KEY,
   SettingsContext,
   type Settings,
@@ -17,7 +20,20 @@ const migrate = (stored: Partial<Settings>): Partial<Settings> => {
     typeof placement === 'object' &&
     typeof placement.x === 'number' &&
     typeof placement.y === 'number';
-  return { ...stored, placement: usable ? clampPlacement(placement) : DEFAULT_SETTINGS.placement };
+  const goalName = typeof stored.goalName === 'string' ? stored.goalName : DEFAULT_SETTINGS.goalName;
+  const goalDate = typeof stored.goalDate === 'string' ? stored.goalDate : DEFAULT_SETTINGS.goalDate;
+  return {
+    ...stored,
+    background: normalizeBackground(stored.background),
+    placement: usable ? clampPlacement(placement) : DEFAULT_SETTINGS.placement,
+    scrimRange: clampScrimValue(stored.scrimRange, DEFAULT_SETTINGS.scrimRange),
+    scrimAmount: clampScrimValue(stored.scrimAmount, DEFAULT_SETTINGS.scrimAmount),
+    refreshIntervalMs: clampRefreshIntervalMs(stored.refreshIntervalMs, DEFAULT_SETTINGS.refreshIntervalMs),
+    // 表示するかどうかは利用者の選択として保つ。出せるかどうかは値の妥当性で毎回判定する
+    goalEnabled: stored.goalEnabled === true,
+    goalName,
+    goalDate,
+  };
 };
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {

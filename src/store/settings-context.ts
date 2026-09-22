@@ -29,7 +29,10 @@ export const FACES = [
 ] as const;
 export type FaceId = (typeof FACES)[number]['id'];
 
-export type BackgroundKind = 'image' | 'solid' | 'black' | 'transparent';
+export type BackgroundKind = 'image' | 'solid' | 'black';
+
+export const normalizeBackground = (value: unknown): BackgroundKind =>
+  value === 'solid' || value === 'black' ? value : value === 'transparent' ? 'black' : 'image';
 
 /**
  * 背景が利用者の選んだ画像である以上、前景だけでは読めない場面が残る。
@@ -52,10 +55,18 @@ export type Settings = {
   imageSource: 'unsplash' | 'local';
   textColor: string;
   legibility: Legibility;
+  /** 減光が文字の周囲へ広がる範囲。0 が従来の範囲、100 が最大 */
+  scrimRange: number;
+  /** 減光の強さ。50 が従来の強さ */
+  scrimAmount: number;
   showSeconds: boolean;
   showDate: boolean;
   showWeekday: boolean;
   hour12: boolean;
+  goalEnabled: boolean;
+  goalName: string;
+  /** input[type=date] と同じ YYYY-MM-DD */
+  goalDate: string;
   background: BackgroundKind;
   solidColor: string;
   unsplashQuery: string;
@@ -80,10 +91,15 @@ export const DEFAULT_SETTINGS: Settings = {
   imageSource: 'unsplash',
   textColor: '',
   legibility: 'shadow',
+  scrimRange: 0,
+  scrimAmount: 50,
   showSeconds: true,
   showDate: true,
   showWeekday: false,
   hour12: false,
+  goalEnabled: false,
+  goalName: '',
+  goalDate: '',
   background: 'image',
   solidColor: '#3a4a5a',
   unsplashQuery: 'nature',

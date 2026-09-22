@@ -1,6 +1,8 @@
 import { ImageUp, Maximize2, Minimize2, Moon, RotateCw, Sun, Undo2, Volume2, X } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 import { playChime, requestNotifyPermission } from '~/lib/alert';
+import { isAutoRefresh } from '~/lib/background';
+import { daysUntilGoal, describeGoalGap, GOAL_NAME_MAX_LENGTH, tomorrowDateInputValue } from '~/lib/goal';
 import { REFRESH_INTERVALS, UNSPLASH_QUERIES, useBackground } from '~/store/background-context';
 import { useNotices } from '~/store/notices-context';
 import {
@@ -45,7 +47,13 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
   const alwaysVisible = settings.autoHideSeconds === 0;
   const titleId = useId();
   const sectionId = useId();
+  const goalNameId = useId();
+  const goalDateId = useId();
   const pendingAdjust = useRef<AdjustVariant | null>(null);
+  const goalDays = daysUntilGoal(new Date(), settings.goalDate);
+  // 揃っていない間も設定は保存する。出せない理由だけをこの場に残す
+  const goalGap = describeGoalGap(settings.goalName, settings.goalDate, new Date());
+
   const enterAdjust = (variant: AdjustVariant) => {
     pendingAdjust.current = variant;
     onClose();
@@ -187,6 +195,72 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                   {/* 切り替えた結果は主表示で確かめられない。ここで同じ書式を見せる */}
                   <ClockPreview />
                 </Field>
+              </Zone>
+
+              <Zone
+                title="目標までの日数"
+                description="表示するにして目標と明日以降の日付を入力すると、時計に残り日数を出します。"
+              >
+                <FieldRow>
+                  <div className="flex items-center justify-between gap-[var(--spacing-stack)]">
+                    <span id="goal-enabled-label">表示する</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={settings.goalEnabled}
+                      aria-labelledby="goal-enabled-label"
+                      onClick={() => update({ goalEnabled: !settings.goalEnabled })}
+                      className="relative h-[22px] w-[40px] shrink-0 rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-transparent p-0"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="absolute top-[2px] h-[16px] w-[16px] rounded-[var(--radius-marker)] bg-[var(--color-fg-primary)] transition-[left] duration-[var(--motion-state)] ease-[var(--ease-out)]"
+                        style={{ left: settings.goalEnabled ? '20px' : '2px' }}
+                      />
+                    </button>
+                  </div>
+                </FieldRow>
+
+                {settings.goalEnabled ? (
+                  <div className="grid gap-[var(--spacing-group)]">
+                    <Field label={<label htmlFor={goalNameId}>目標</label>} hint={`最大${GOAL_NAME_MAX_LENGTH}文字`}>
+                      <input
+                        id={goalNameId}
+                        type="text"
+                        required
+                        maxLength={GOAL_NAME_MAX_LENGTH}
+                        value={settings.goalName}
+                        onChange={(event) => update({ goalName: event.target.value })}
+                        className="min-h-[var(--size-hit)] w-full rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-transparent px-[var(--spacing-inline)] text-[length:var(--text-body)] text-[var(--color-fg-primary)]"
+                      />
+                    </Field>
+
+                    <Field
+                      label={<label htmlFor={goalDateId}>目標日</label>}
+                      hint={
+                        settings.goalDate && (goalDays === null || goalDays < 1)
+                          ? '明日以降の日付を選んでください。'
+                          : undefined
+                      }
+                    >
+                      <input
+                        id={goalDateId}
+                        type="date"
+                        required
+                        min={tomorrowDateInputValue(new Date())}
+                        value={settings.goalDate}
+                        aria-invalid={settings.goalDate !== '' && (goalDays === null || goalDays < 1)}
+                        onChange={(event) => update({ goalDate: event.target.value })}
+                        className="min-h-[var(--size-hit)] w-full rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-transparent px-[var(--spacing-inline)] text-[length:var(--text-body)] text-[var(--color-fg-primary)]"
+                      />
+                    </Field>
+
+                    {/* hig: feedback.user-caused-immediate。出ていない事実と、出すために足りないものを並べる */}
+                    {goalGap ? (
+                      <p className="m-0 text-[length:var(--text-label)] text-[var(--color-fg-secondary)]">{goalGap}</p>
+                    ) : null}
+                  </div>
+                ) : null}
               </Zone>
 
               <Zone title="画面レイアウト">

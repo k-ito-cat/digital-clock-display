@@ -216,6 +216,11 @@
     color: var(--color-fg-secondary);
   }
 
+  .clock-preview-goal {
+    font-size: var(--text-label);
+    color: var(--color-fg-secondary);
+  }
+
   .clock-preview-time {
     line-height: 1.1;
     color: var(--color-fg-primary);
