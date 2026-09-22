@@ -8,6 +8,7 @@ import { ADJUST_VARIANTS, OTHER_VARIANT, type AdjustVariant } from './adjust-var
 import { Field } from './Field';
 import { PositionPad } from './PositionPad';
 import { Segmented } from './Segmented';
+import { ScrimControls } from './ScrimControls';
 
 const KEY_STEP = 8;
 const KEY_STEP_LARGE = 24;
@@ -310,6 +311,14 @@ export const AdjustPanel = ({ variant, bounds, onSwitch, onExit }: Props) => {
               onChange={(legibility) => update({ legibility })}
             />
           </Field>
+          {settings.legibility === 'scrim' ? (
+            <ScrimControls
+              range={settings.scrimRange}
+              amount={settings.scrimAmount}
+              onRangeChange={(scrimRange) => update({ scrimRange })}
+              onAmountChange={(scrimAmount) => update({ scrimAmount })}
+            />
+          ) : null}
           <Field label="文字色">{color}</Field>
         </div>
       )}

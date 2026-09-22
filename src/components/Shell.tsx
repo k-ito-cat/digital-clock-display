@@ -1,9 +1,10 @@
-import { Maximize, Minimize, PictureInPicture2 } from 'lucide-react';
+import { Maximize, Minimize, PictureInPicture2, StickyNote } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ClockScreen } from '~/features/ClockScreen';
 import { PomodoroScreen } from '~/features/PomodoroScreen';
 import { TimerScreen } from '~/features/TimerScreen';
 import { isPipSupported } from '~/lib/pip';
+import { getScrimAppearance } from '~/lib/scrim';
 import { useBackground } from '~/store/background-context';
 import { useNotices } from '~/store/notices-context';
 import { useSettings } from '~/store/settings-context';
@@ -15,6 +16,7 @@ import { GearStack } from './GearStack';
 import { PipSurface, type PipHandle } from './PipSurface';
 import { Attribution } from './Attribution';
 import { Notices } from './Notices';
+import { NotePanel, type NoteMode } from './NotePanel';
 import { RunningIndicator } from './RunningIndicator';
 import { ScreenControls } from './ScreenControls';
 import { SessionSheet } from './SessionSheet';
@@ -32,6 +34,9 @@ const VIEWS: { id: ViewId; label: string }[] = [
   { id: 'timer', label: 'タイマー' },
 ];
 
+const preferredScrollBehavior = (): ScrollBehavior =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
 export const Shell = () => {
   const { settings } = useSettings();
   const { imageUrl } = useBackground();
@@ -44,16 +49,23 @@ export const Shell = () => {
    * 設定と調整モードは同時に開かない。状態を1つにして矛盾を作らせない。
    */
   const [overlay, setOverlay] = useState<'none' | 'settings' | 'adjust' | 'session'>('none');
+  const [noteMode, setNoteMode] = useState<NoteMode | 'closed'>('closed');
   const [adjustVariant, setAdjustVariant] = useState<AdjustVariant>('compact');
   const settingsOpen = overlay === 'settings';
   const adjustOpen = overlay === 'adjust';
   const [lastActivity, setLastActivity] = useState(() => Date.now());
   const [tick, setTick] = useState(() => Date.now());
   const scroller = useRef<HTMLDivElement>(null);
+  const viewTabs = useRef<HTMLElement>(null);
   const frame = useRef<HTMLElement>(null);
   const pip = useRef<PipHandle>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const pipSupported = isPipSupported();
+
+  const openOverlay = (next: Exclude<typeof overlay, 'none'>) => {
+    setNoteMode((current) => (current === 'open' ? 'minimized' : current));
+    setOverlay(next);
+  };
 
   const wake = useCallback(() => setLastActivity(Date.now()), []);
 
@@ -110,7 +122,7 @@ export const Shell = () => {
     const threshold = Math.min(SWIPE_THRESHOLD_PX, element.clientWidth * SWIPE_THRESHOLD_RATIO);
     const step = Math.abs(moved) >= threshold ? -Math.sign(moved) : 0;
     const index = Math.min(VIEWS.length - 1, Math.max(0, state.startIndex + step));
-    element.scrollTo({ left: index * element.clientWidth, behavior: 'smooth' });
+    element.scrollTo({ left: index * element.clientWidth, behavior: preferredScrollBehavior() });
   };
 
   useEffect(() => {
@@ -129,12 +141,15 @@ export const Shell = () => {
   // 調整モード中に操作UIが消えると調整できなくなるため、そのあいだは働かせない
   // 0 は隠さない設定。時間の経過で状態を変えない
   const idle =
-    settings.autoHideSeconds > 0 && tick - lastActivity > settings.autoHideSeconds * 1000 && overlay === 'none';
+    settings.autoHideSeconds > 0 &&
+    tick - lastActivity > settings.autoHideSeconds * 1000 &&
+    overlay === 'none' &&
+    noteMode !== 'open';
 
   const goTo = useCallback((id: ViewId) => {
     const index = VIEWS.findIndex((v) => v.id === id);
     const element = scroller.current;
-    if (element) element.scrollTo({ left: index * element.clientWidth, behavior: 'smooth' });
+    if (element) element.scrollTo({ left: index * element.clientWidth, behavior: preferredScrollBehavior() });
     setView(id);
   }, []);
 
@@ -142,7 +157,7 @@ export const Shell = () => {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       wake();
-      if (overlay !== 'none' || event.defaultPrevented) return;
+      if (overlay !== 'none' || noteMode === 'open' || event.defaultPrevented) return;
       const index = VIEWS.findIndex((v) => v.id === view);
       if (event.key === 'ArrowRight' && index < VIEWS.length - 1) goTo(VIEWS[index + 1].id);
       if (event.key === 'ArrowLeft' && index > 0) goTo(VIEWS[index - 1].id);
@@ -155,7 +170,7 @@ export const Shell = () => {
       window.removeEventListener('pointermove', wake);
       window.removeEventListener('pointerdown', wake);
     };
-  }, [view, overlay, goTo, wake]);
+  }, [view, overlay, noteMode, goTo, wake]);
 
   /**
    * hig: gesture.view-swipe
@@ -166,18 +181,28 @@ export const Shell = () => {
   useEffect(() => {
     const element = scroller.current;
     if (!element) return;
+    const tabs = viewTabs.current;
+    const centerExpansion = tabs ? Number.parseFloat(getComputedStyle(tabs).getPropertyValue('--spacing-tight')) : 0;
 
     let frame = 0;
     const sync = () => {
       frame = 0;
       if (!element.clientWidth) return;
-      const index = Math.min(VIEWS.length - 1, Math.max(0, Math.round(element.scrollLeft / element.clientWidth)));
+      const progress = Math.min(VIEWS.length - 1, Math.max(0, element.scrollLeft / element.clientWidth));
+      const center = (VIEWS.length - 1) / 2;
+      const expansion = centerExpansion * Math.max(0, 1 - Math.abs(progress - center));
+      const start = (progress / VIEWS.length) * 100;
+      const end = ((VIEWS.length - 1 - progress) / VIEWS.length) * 100;
+      tabs?.style.setProperty('--view-tab-start', `calc(${start}% - ${expansion}px)`);
+      tabs?.style.setProperty('--view-tab-end', `calc(${end}% - ${expansion}px)`);
+      const index = Math.round(progress);
       setView(VIEWS[index].id);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(sync);
     };
 
+    sync();
     element.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       element.removeEventListener('scroll', onScroll);
@@ -191,11 +216,10 @@ export const Shell = () => {
       ? settings.solidColor
       : settings.background === 'black'
         ? '#000000'
-        : settings.background === 'transparent'
-          ? 'transparent'
-          : imageUrl
-            ? `url(${JSON.stringify(imageUrl)}) center / cover no-repeat`
-            : '#12161b';
+        : imageUrl
+          ? `url(${JSON.stringify(imageUrl)}) center / cover no-repeat`
+          : '#12161b';
+  const scrim = getScrimAppearance(settings.scrimRange, settings.scrimAmount);
 
   return (
     <section
@@ -204,7 +228,14 @@ export const Shell = () => {
       data-legibility={settings.legibility}
       data-idle={idle}
       className="relative h-full w-full overflow-hidden"
-      style={{ containerType: 'size', background }}
+      style={{
+        containerType: 'size',
+        background,
+        ['--scrim-inset-inline' as string]: `-${scrim.insetInlinePercent}%`,
+        ['--scrim-inset-block' as string]: `-${scrim.insetBlockPercent}%`,
+        ['--scrim-dark-opacity' as string]: scrim.darkOpacity,
+        ['--scrim-light-opacity' as string]: scrim.lightOpacity,
+      }}
       onFocus={wake}
     >
       <div
@@ -240,14 +271,16 @@ export const Shell = () => {
       {/* 自動非表示は .auto-hide に任せる。ホバー中は消さず、消えている間は押せない */}
       <div className="auto-hide pointer-events-none absolute inset-0" style={{ zIndex: 'var(--z-controls)' }}>
         <nav
+          ref={viewTabs}
           aria-label="画面"
           role="tablist"
-          className="control-capsule pointer-events-auto absolute top-[var(--spacing-edge)] left-1/2 flex max-w-[calc(100cqi-var(--spacing-edge)*2)] -translate-x-1/2 flex-nowrap gap-[var(--spacing-tight)]"
+          className="view-tabs control-capsule pointer-events-auto absolute top-[var(--spacing-edge)] left-1/2 max-w-[calc(100cqi-var(--spacing-edge)*2)] -translate-x-1/2"
         >
+          <span aria-hidden="true" className="view-tab-indicator" />
           {VIEWS.map((item) => (
             <Action
               key={item.id}
-              shape="tab"
+              shape="viewTab"
               role="tab"
               aria-selected={view === item.id}
               onClick={() => goTo(item.id)}
@@ -257,9 +290,22 @@ export const Shell = () => {
             </Action>
           ))}
         </nav>
-        <ScreenControls view={view} onOpenSession={() => setOverlay('session')} />
+        <ScreenControls view={view} onOpenSession={() => openOverlay('session')} />
 
         <div className="global-controls control-capsule pointer-events-auto absolute flex items-center gap-[var(--spacing-action)]">
+          <Action
+            aria-label={
+              noteMode === 'closed' ? 'ノートを開く' : noteMode === 'open' ? 'ノートを最小化' : 'ノートを復元'
+            }
+            aria-pressed={noteMode !== 'closed'}
+            tip={noteMode === 'closed' ? 'ノートを開く' : noteMode === 'open' ? 'ノートを最小化' : 'ノートを復元'}
+            onClick={() => {
+              if (overlay === 'adjust') setOverlay('none');
+              setNoteMode((current) => (current === 'open' ? 'minimized' : 'open'));
+            }}
+          >
+            <StickyNote size={16} />
+          </Action>
           {pipSupported ? (
             <Action
               aria-label="Picture in Picture"
@@ -285,10 +331,10 @@ export const Shell = () => {
             {fullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </Action>
           <GearStack
-            onOpenSettings={() => setOverlay('settings')}
+            onOpenSettings={() => openOverlay('settings')}
             onEnterAdjust={(variant) => {
               setAdjustVariant(variant);
-              setOverlay('adjust');
+              openOverlay('adjust');
             }}
           />
         </div>
@@ -322,7 +368,7 @@ export const Shell = () => {
         onClose={() => setOverlay('none')}
         onEnterAdjust={(variant) => {
           setAdjustVariant(variant);
-          setOverlay('adjust');
+          openOverlay('adjust');
         }}
       />
       {adjustOpen ? (
@@ -334,6 +380,9 @@ export const Shell = () => {
           onSwitch={setAdjustVariant}
           onExit={() => setOverlay('none')}
         />
+      ) : null}
+      {noteMode !== 'closed' ? (
+        <NotePanel mode={noteMode} bounds={frame} onModeChange={setNoteMode} onClose={() => setNoteMode('closed')} />
       ) : null}
       <span className="sr-only" aria-live="polite">
         {phase}

@@ -23,6 +23,7 @@ import { ConfirmSurface } from './ConfirmSurface';
 import { Field, FieldRow, Zone } from './Field';
 import { PositionPad } from './PositionPad';
 import { SavedIndicator } from './SavedIndicator';
+import { ScrimControls } from './ScrimControls';
 import { Segmented } from './Segmented';
 import { ModalSurface } from './ModalSurface';
 import { Notices } from './Notices';
@@ -321,6 +322,15 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                     onChange={(legibility) => update({ legibility })}
                   />
                 </Field>
+
+                {settings.legibility === 'scrim' ? (
+                  <ScrimControls
+                    range={settings.scrimRange}
+                    amount={settings.scrimAmount}
+                    onRangeChange={(scrimRange) => update({ scrimRange })}
+                    onAmountChange={(scrimAmount) => update({ scrimAmount })}
+                  />
+                ) : null}
 
                 <Field label="文字色">
                   <div className="flex items-center gap-[var(--spacing-inline)]">

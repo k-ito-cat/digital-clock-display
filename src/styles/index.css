@@ -77,14 +77,18 @@
   [data-legibility='scrim'] .readout-core::before {
     content: '';
     position: absolute;
-    inset: -14% -10%;
+    inset: var(--scrim-inset-block) var(--scrim-inset-inline);
     z-index: -1;
-    background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 72%);
+    background: radial-gradient(ellipse at center, rgb(0 0 0 / var(--scrim-dark-opacity)) 0%, rgb(0 0 0 / 0) 72%);
   }
 
   [data-theme='light'][data-legibility='scrim'] .readout-group:not(:has(.readout-core))::before,
   [data-theme='light'][data-legibility='scrim'] .readout-core::before {
-    background: radial-gradient(ellipse at center, rgb(255 255 255 / 0.72) 0%, rgb(255 255 255 / 0) 72%);
+    background: radial-gradient(
+      ellipse at center,
+      rgb(255 255 255 / var(--scrim-light-opacity)) 0%,
+      rgb(255 255 255 / 0) 72%
+    );
   }
 
   /*
