@@ -13,7 +13,7 @@ type Props<T extends string | number> = {
 
 /**
  * 選択肢が少ない設定は、開いて選ぶのではなく並べて選ぶ。
- * 現在地は塗らずに下線で示す。hig の nav.current-view と button.no-fill に従う。
+ * 選択中の値は操作要素の形を保った薄い塗りで示す。hig の button.no-fill に従う。
  */
 export const Segmented = <T extends string | number>({ label, value, options, onChange, className }: Props<T>) => (
   <div

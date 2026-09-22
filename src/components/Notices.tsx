@@ -7,11 +7,12 @@ import { useNotices, type Notice } from '~/store/notices-context';
  * オーバーレイ面を開いている間も位置を変えない。面の中に入れると項目を押しのけるため。
  * その場合はその面の中から呼び、top layer の中で画面に対して固定する。暗幕の下に隠れないようにするため。
  * 色だけに頼らないよう記号を種類ごとに変える。hig: a11y.state-not-color-only
+ * 見た目は `.notice` に寄せる。種類は data-kind で伝え、色の対応は styles 側を正本にする。
  */
-const TONE: Record<Notice['kind'], { Icon: typeof Info; color: string }> = {
-  error: { Icon: TriangleAlert, color: 'var(--color-status-error)' },
-  warn: { Icon: CircleAlert, color: 'var(--color-status-warn)' },
-  info: { Icon: Info, color: 'var(--color-border-subtle)' },
+const ICON: Record<Notice['kind'], typeof Info> = {
+  error: TriangleAlert,
+  warn: CircleAlert,
+  info: Info,
 };
 
 export const Notices = ({ active = true }: { active?: boolean }) => {
@@ -22,14 +23,12 @@ export const Notices = ({ active = true }: { active?: boolean }) => {
     <div className="notices-top pointer-events-none" style={{ zIndex: 'var(--z-notice)' }}>
       <div role="status" aria-live="polite" aria-label="通知" className="notices">
         {notices.map((notice) => {
-          const { Icon, color } = TONE[notice.kind];
+          const Icon = ICON[notice.kind];
           return (
-            <p
-              key={notice.id}
-              className="pointer-events-auto m-0 flex items-start gap-[var(--spacing-inline)] rounded-[var(--radius-control)] border bg-[var(--color-surface-overlay)] px-[var(--spacing-stack)] py-[var(--spacing-inline)] text-[length:var(--text-body)] text-[var(--color-fg-primary)]"
-              style={{ borderColor: color }}
-            >
-              <Icon aria-hidden size={16} className="shrink-0" style={{ color }} />
+            <p key={notice.id} data-kind={notice.kind} className="notice pointer-events-auto">
+              <span aria-hidden="true" className="notice-icon">
+                <Icon size={16} />
+              </span>
               <span className="min-w-0 [overflow-wrap:anywhere]">{notice.message}</span>
             </p>
           );

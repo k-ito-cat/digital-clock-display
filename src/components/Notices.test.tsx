@@ -16,6 +16,7 @@ const Content = ({ menu }: { menu: boolean }) => {
     <>
       <button onClick={() => notify('error', '検証用の通知')}>通知を発生</button>
       <button onClick={() => notify('warn', '検証用の警告')}>警告を発生</button>
+      <button onClick={() => notify('info', '検証用のお知らせ')}>お知らせを発生</button>
       <Notices active={!menu} />
       <section aria-label="検証用メニュー">
         <Notices active={menu} />
@@ -76,6 +77,26 @@ describe('Notices', () => {
     expect(screen.getByText('検証用の通知')).toBeTruthy();
     act(() => vi.advanceTimersByTime(1000));
     expect(screen.queryByText('検証用の通知')).toBeNull();
+  });
+
+  it('種類を属性で伝え、記号を添える', () => {
+    render(
+      <NoticeProvider>
+        <Content menu={false} />
+      </NoticeProvider>,
+    );
+    const banner = () => screen.getByRole('status', { name: '通知' }).querySelector('p');
+
+    for (const [name, kind] of [
+      ['通知を発生', 'error'],
+      ['警告を発生', 'warn'],
+      ['お知らせを発生', 'info'],
+    ]) {
+      fireEvent.click(trigger(name));
+      expect(banner()).toHaveAttribute('data-kind', kind);
+      // 色だけに頼らないため、種類ごとの記号を必ず添える
+      expect(banner()?.querySelector('.notice-icon svg')).toBeTruthy();
+    }
   });
 
   it('続けて発生しても積み上げず、最新の1件だけを出す', () => {
