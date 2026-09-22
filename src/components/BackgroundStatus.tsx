@@ -1,5 +1,7 @@
 import { Check, CircleSlash, TriangleAlert } from 'lucide-react';
+import { isAutoRefresh } from '~/lib/background';
 import { STATUS_LABEL, useBackground } from '~/store/background-context';
+import { useSettings } from '~/store/settings-context';
 
 const ICON = {
   ok: Check,
@@ -29,8 +31,20 @@ const DETAIL: Record<string, string> = {
  */
 export const BackgroundStatus = () => {
   const { status, rate, nextRefreshAt } = useBackground();
+  const { settings } = useSettings();
   const Icon = ICON[status];
   const ratio = rate && rate.limit > 0 ? rate.remaining / rate.limit : null;
+  const auto = isAutoRefresh(settings.refreshIntervalMs);
+  const schedule = !auto
+    ? 'しない'
+    : nextRefreshAt
+      ? new Date(nextRefreshAt).toLocaleString('ja-JP', {
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : null;
 
   return (
     <div className="grid gap-[var(--spacing-inline)] text-[length:var(--text-body)]">
@@ -78,17 +92,10 @@ export const BackgroundStatus = () => {
         </div>
       ) : null}
 
-      {nextRefreshAt ? (
+      {schedule ? (
         <p className="m-0 flex items-baseline justify-between text-[length:var(--text-label)] text-[var(--color-fg-secondary)]">
           <span>次の切替予定</span>
-          <span className="tabular">
-            {new Date(nextRefreshAt).toLocaleString('ja-JP', {
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
+          <span className={auto ? 'tabular' : undefined}>{schedule}</span>
         </p>
       ) : null}
     </div>

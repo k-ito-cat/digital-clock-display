@@ -366,7 +366,6 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                     { value: 'image' as const, label: '画像' },
                     { value: 'solid' as const, label: '単色' },
                     { value: 'black' as const, label: '黒' },
-                    { value: 'transparent' as const, label: '透明' },
                   ]}
                   onChange={(background_) => update({ background: background_ })}
                 />
@@ -415,7 +414,14 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                           />
                         </Field>
 
-                        <Field label="切替間隔">
+                        <Field
+                          label="切替間隔"
+                          hint={
+                            isAutoRefresh(settings.refreshIntervalMs)
+                              ? undefined
+                              : '今の画像を保ち続けます。再読み込みしてもUnsplashから取得し直しません。'
+                          }
+                        >
                           <Segmented
                             label="切替間隔"
                             value={settings.refreshIntervalMs}
@@ -554,6 +560,15 @@ export const SettingsDrawer = ({ open, onClose, onEnterAdjust }: Props) => {
                   <Volume2 size={14} />
                   音を試聴する
                 </Action>
+              </Zone>
+
+              <Zone title="設定の保存">
+                <div className="grid gap-[var(--spacing-tight)] text-[length:var(--text-label)] text-[var(--color-fg-primary)]">
+                  <p className="m-0">設定は、この端末のこのブラウザに保存されます。他の端末とは同期されません。</p>
+                  <p className="m-0">
+                    Safariでは、このサイトを操作しないままSafariを7日間利用すると、設定が削除される場合があります。
+                  </p>
+                </div>
               </Zone>
 
               {/* 元の値へ戻せない操作なので、ここだけ確認を挟む。hig: form.reset-all */}

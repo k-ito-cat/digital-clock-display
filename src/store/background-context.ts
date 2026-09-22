@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { NO_REFRESH_INTERVAL_MS } from '~/lib/background';
 import type { UnsplashPhoto, UnsplashRate } from '~/lib/unsplash';
 
 export const UNSPLASH_QUERIES = [
@@ -17,6 +18,7 @@ export const REFRESH_INTERVALS = [
   { value: 6 * 60 * 60 * 1000, label: '6時間' },
   { value: 12 * 60 * 60 * 1000, label: '12時間' },
   { value: 24 * 60 * 60 * 1000, label: '1日' },
+  { value: NO_REFRESH_INTERVAL_MS, label: '切り替えない' },
 ] as const;
 
 /** ローカル画像は保存領域を圧迫するため、受け入れる上限を決めておく */

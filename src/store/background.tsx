@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { needsFetch, nextRefreshAt, type BackgroundCache } from '~/lib/background';
 import { readJson, removeKey, writeJson } from '~/lib/storage';
-import { fetchRandomPhoto, type UnsplashPhoto, type UnsplashRate } from '~/lib/unsplash';
+import { fetchRandomPhoto, type UnsplashRate } from '~/lib/unsplash';
 import { BackgroundContext, LOCAL_IMAGE_LIMIT_BYTES, type BackgroundStatus } from './background-context';
 import { useNotices } from './notices-context';
 import { useSettings } from './settings-context';
@@ -10,13 +11,11 @@ const LOCAL_KEY = 'background-local';
 /** 期限切れの確認間隔。取得間隔そのものではない */
 const CHECK_INTERVAL_MS = 30_000;
 
-type Cache = { photo: UnsplashPhoto; fetchedAt: number; query: string };
-
 export const BackgroundProvider = ({ children }: { children: ReactNode }) => {
   const { settings } = useSettings();
   const { notify } = useNotices();
 
-  const [cache, setCache] = useState<Cache | null>(() => readJson<Cache | null>(CACHE_KEY, null));
+  const [cache, setCache] = useState<BackgroundCache | null>(() => readJson<BackgroundCache | null>(CACHE_KEY, null));
   const [localImage, setLocalImageState] = useState<string | null>(() => readJson<string | null>(LOCAL_KEY, null));
   const [status, setStatus] = useState<BackgroundStatus>('ok');
   const [rate, setRate] = useState<UnsplashRate | null>(null);
@@ -46,7 +45,7 @@ export const BackgroundProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setStatus('ok');
-      const next: Cache = { photo: result.photo, fetchedAt: Date.now(), query };
+      const next: BackgroundCache = { photo: result.photo, fetchedAt: Date.now(), query };
       setCache(next);
       writeJson(CACHE_KEY, next);
     },
@@ -62,18 +61,16 @@ export const BackgroundProvider = ({ children }: { children: ReactNode }) => {
   /**
    * 期限切れを一定間隔で確かめ、必要なときだけ取得する。
    * 切替間隔の変更は、再読み込みなしで次回の判定から効く。
+   * 取得に失敗した場合はこの確認が再取得を兼ねるため、切り替えない設定でも確認自体は続ける。
    */
   useEffect(() => {
     if (settings.background !== 'image' || settings.imageSource !== 'unsplash') return;
 
     let timer = 0;
     const check = () => {
-      const current = cacheRef.current;
-      const expired =
-        !current ||
-        current.query !== settings.unsplashQuery ||
-        Date.now() - current.fetchedAt >= settings.refreshIntervalMs;
-      if (expired) void load(settings.unsplashQuery);
+      if (needsFetch(cacheRef.current, settings.unsplashQuery, settings.refreshIntervalMs, Date.now())) {
+        void load(settings.unsplashQuery);
+      }
       timer = window.setTimeout(check, CHECK_INTERVAL_MS);
     };
 
@@ -116,7 +113,7 @@ export const BackgroundProvider = ({ children }: { children: ReactNode }) => {
       isLocal: localImage !== null,
       status,
       rate,
-      nextRefreshAt: cache ? cache.fetchedAt + settings.refreshIntervalMs : null,
+      nextRefreshAt: nextRefreshAt(cache, settings.refreshIntervalMs),
       refresh: () => void load(settings.unsplashQuery),
       setLocalImage,
       clearLocalImage,
