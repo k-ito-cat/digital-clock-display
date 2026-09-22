@@ -14,10 +14,12 @@
   --spacing-edge: 24px;
   --spacing-action: 8px;
 
-  /* Radius: 意味ごとに3段。全丸を持たない */
+  /* Radius: 意味ごとに使い分ける。全丸は浮く操作だけに限る */
   --radius-flush: 0px;
   --radius-marker: 2px;
   --radius-control: 4px;
+  /* 編集対象として持ち続けるノートを、操作要素より強いまとまりとして示す */
+  --radius-note: 8px;
   /* 浮いている操作の群だけに使う。カプセルの形で1つのまとまりとして示す */
   --radius-capsule: 9999px;
   /* 時計の背後に敷く面だけに使う。旧実装の見え方を踏襲する */

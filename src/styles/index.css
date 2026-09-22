@@ -19,7 +19,8 @@
 
   button,
   input,
-  select {
+  select,
+  textarea {
     font: inherit;
     color: inherit;
   }
@@ -32,7 +33,7 @@
    * hig: focus.ring
    * 背景が利用者の選んだ画像でも視認できるよう、明暗2重のリングにする。
    */
-  :where(button, input, select, a, [tabindex]):focus-visible {
+  :where(button, input, select, textarea, a, [tabindex]):focus-visible {
     outline: 2px solid var(--color-focus-inner);
     outline-offset: 0;
     box-shadow: 0 0 0 4px var(--color-focus-outer);
@@ -133,6 +134,82 @@
     height: var(--size-icon);
   }
 
+  .note-panel {
+    box-sizing: border-box;
+    display: grid;
+    width: min(92cqi, 360px);
+    height: min(70cqb, 420px);
+    padding: var(--spacing-stack);
+    border-radius: var(--radius-note);
+  }
+
+  .note-panel[data-minimized] {
+    place-items: center;
+    width: var(--size-hit);
+    height: var(--size-hit);
+    padding: 0;
+    border-radius: var(--radius-capsule);
+  }
+
+  .note-panel[data-minimized] > svg {
+    width: var(--size-icon);
+    height: var(--size-icon);
+  }
+
+  .note-content {
+    position: relative;
+    animation: note-fade-in var(--motion-state) var(--ease-out) both;
+  }
+
+  /*
+   * 最小化と復元の間、中身は面と一緒に引き伸ばされる。
+   * 大きさが落ち着く頃に現れるよう遅らせ、伸びた状態を見せない。
+   */
+  .note-panel[data-animated] .note-content,
+  .note-panel[data-animated][data-minimized] > svg {
+    animation: note-fade-in var(--motion-state) var(--ease-out) calc(var(--motion-surface) * 0.5) both;
+  }
+
+  .note-resize-handle {
+    position: absolute;
+    right: calc(var(--spacing-stack) * -1);
+    bottom: calc(var(--spacing-stack) * -1);
+    display: grid;
+    width: var(--size-hit);
+    height: var(--size-hit);
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-fg-secondary);
+    cursor: nwse-resize;
+    touch-action: none;
+  }
+
+  .note-resize-handle:hover,
+  .note-resize-handle:focus-visible {
+    color: var(--color-fg-primary);
+  }
+
+  .note-resize-handle svg {
+    width: var(--size-icon);
+    height: var(--size-icon);
+  }
+
+  .note-textarea:focus-visible {
+    outline: 0;
+    border-color: var(--color-focus-outer);
+    box-shadow:
+      inset 0 0 0 1px var(--color-focus-inner),
+      inset 0 0 0 3px var(--color-focus-outer);
+  }
+
+  @keyframes note-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
   /*
    * ポインタを載せている間は消さない。狙いを定めて止めた瞬間に消えると押せないため。
    * 消えている間は中の操作も押せない状態にする。子が pointer-events を持つため、明示的に打ち消す。
@@ -191,6 +268,31 @@
     background: var(--color-surface-control);
     backdrop-filter: blur(14px);
     padding-inline: var(--spacing-inline);
+  }
+
+  /*
+   * 画面タブは同じ幅で3等分し、選択面だけをスクロール位置に合わせて動かす。
+   * 端では選択面と外枠の輪郭を一致させるため、外枠の内側に余白を作らない。
+   */
+  .view-tabs {
+    --view-tab-start: 0%;
+    --view-tab-end: calc(200% / 3);
+
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding-inline: 0;
+  }
+
+  .view-tab-indicator {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: var(--view-tab-start);
+    inset-inline-end: var(--view-tab-end);
+    pointer-events: none;
+    border-radius: var(--radius-capsule);
+    background: color-mix(in srgb, var(--color-fg-primary) 12%, transparent);
   }
 
   /*
@@ -764,6 +866,10 @@
     padding: var(--spacing-group);
   }
 
+  .note-confirm-sheet {
+    width: min(440px, calc(100vw - var(--spacing-group) * 2));
+  }
+
   .settings-content,
   .session-sheet-content {
     display: flex;
@@ -777,6 +883,42 @@
     gap: var(--spacing-inline);
     max-width: min(70cqi, 420px);
     pointer-events: none;
+  }
+
+  /*
+   * 地色は背景の明るさに左右されるため、面の輪郭は枠線が担う。
+   * 枠線と記号には同じ色を使い、どの背景の上でも 3:1 を下回らない明度だけを充てる。
+   * 情報は状態色を持たず、無彩色の副前景色を使う。foundations の色を参照。
+   */
+  .notice {
+    --notice-accent: var(--color-fg-secondary);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--spacing-inline);
+    align-items: start;
+    margin: 0;
+    padding: var(--spacing-inline) var(--spacing-stack);
+    border: 1px solid var(--notice-accent);
+    border-radius: var(--radius-control);
+    background: var(--color-surface-overlay);
+    color: var(--color-fg-primary);
+    font-size: var(--text-body);
+  }
+
+  .notice[data-kind='error'] {
+    --notice-accent: var(--color-status-error);
+  }
+
+  .notice[data-kind='warn'] {
+    --notice-accent: var(--color-status-warn);
+  }
+
+  /* 記号は面の中央ではなく、1行目の中央に置く。複数行でも読み始めと揃える */
+  .notice-icon {
+    display: grid;
+    block-size: 1lh;
+    place-items: center;
+    color: var(--notice-accent);
   }
 
   /*
